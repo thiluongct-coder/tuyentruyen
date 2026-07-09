@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic 20 Nhiệm Vụ Công Nghệ Chiến Lược Quốc Gia</title>
+    <style>
+        :root {
+            --primary-color: #00d2ff;
+            --accent-color: #00f2fe;
+            --neon-blue: #00f0ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #060b14; 
+        }
+
+        /* Container nền thành phố công nghệ */
+        .city-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2000&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Lớp phủ hiệu ứng công nghệ */
+        .city-container::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(6, 11, 20, 0.4) 0%, rgba(0, 240, 255, 0.15) 100%);
+            z-index: 1; pointer-events: none;
+        }
+
+        /* Khung chứa các nút bấm tương tác */
+        .hotspots-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+        }
+
+        /* Tiêu đề chính cập nhật */
+        .title-top {
+            position: absolute; top: 4%; color: white; z-index: 20; text-align: center; width: 100%; pointer-events: none;
+        }
+        .title-top h1 { 
+            margin: 0; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; 
+            color: #ffffff; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        }
+        .title-top p { margin: 8px 15px 0; font-size: 1rem; color: #a5f3fc; font-weight: 500; }
+
+        /* Định dạng chung cho nút Hotspot */
+        .hotspot {
+            position: absolute; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .hotspot:hover { transform: scale(1.08); }
+
+        .hotspot-icon {
+            width: 55px; height: 55px; background: rgba(6, 11, 20, 0.9); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px var(--neon-blue), inset 0 0 10px var(--neon-blue);
+            position: relative; border: 2px solid var(--neon-blue);
+        }
+
+        .hotspot-icon::before {
+            content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            background: rgba(0, 240, 255, 0.3); animation: radarPulse 2.5s infinite linear; z-index: -1;
+        }
+        @keyframes radarPulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        .hotspot-icon svg { width: 24px; height: 24px; fill: var(--neon-blue); }
+
+        .hotspot-label {
+            color: #ffffff; margin-top: 8px; font-weight: bold; font-size: 12.5px;
+            background: rgba(6, 11, 20, 0.95); padding: 5px 14px; border-radius: 30px;
+            border: 1px solid var(--neon-blue); box-shadow: 0 4px 12px rgba(0, 240, 255, 0.3); white-space: nowrap;
+        }
+
+        /* VỊ TRÍ TỌA ĐỘ TRÊN MÁY TÍNH (MÀN HÌNH RỘNG) */
+        #spot-nhom1 { top: 32%; left: 20%; }
+        #spot-nhom2 { top: 62%; left: 35%; }
+        #spot-nhom3 { top: 40%; left: 58%; }
+        #spot-nhom4 { top: 52%; left: 78%; }
+
+        /* CẤU HÌNH TỰ ĐỘNG CHỐNG CHỒNG ĐÈ KHI THU NHỎ (MÀN HÌNH < 850px) */
+        @media (max-width: 850px) {
+            body, html { overflow-y: auto; }
+            .city-container { height: auto; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 160px; padding-bottom: 40px; box-sizing: border-box; }
+            .title-top { position: relative; top: 0; margin-bottom: 40px; }
+            .title-top h1 { font-size: 1.7rem; }
+            
+            .hotspots-wrapper {
+                position: relative; width: 90%; height: auto; margin: 0 auto;
+                display: grid; 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 30px 20px; 
+            }
+
+            .hotspot { position: relative !important; top: auto !important; left: auto !important; width: 100%; }
+            .hotspot-icon { width: 52px; height: 52px; }
+            .hotspot-label { font-size: 12px; white-space: normal; text-align: center; max-width: 130px; }
+        }
+
+        /* Thiết kế Hộp thoại Pop-up kính mờ rộng rãi cho nhiều nội dung */
+        .modal {
+            display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.65); justify-content: center; align-items: center; backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: rgba(15, 23, 42, 0.98); border: 2px solid var(--neon-blue);
+            width: 650px; max-width: 90%; max-height: 80vh; border-radius: 16px; padding: 25px; position: relative; 
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); animation: slideIn 0.3s ease-out;
+            display: flex; flex-direction: column;
+        }
+        @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .close-btn { position: absolute; top: 12px; right: 18px; font-size: 28px; cursor: pointer; color: #94a3b8; z-index: 10; }
+        .close-btn:hover { color: var(--neon-blue); }
+        .modal-header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--neon-blue); padding-bottom: 12px; margin-bottom: 15px; flex-shrink: 0; }
+        .modal-header svg { width: 28px; height: 28px; fill: var(--neon-blue); }
+        .modal-header h2 { margin: 0; font-size: 18px; color: #ffffff; }
+        
+        /* Tạo thanh cuộn mượt cho nội dung dài */
+        .modal-body { overflow-y: auto; padding-right: 10px; }
+        .modal-body::-webkit-scrollbar { width: 6px; }
+        .modal-body::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+        
+        .modal-body ul { padding-left: 18px; margin: 0; }
+        .modal-body li { margin-bottom: 14px; font-size: 14px; line-height: 1.6; color: #cbd5e1; text-align: justify; }
+        .modal-body li strong { color: var(--neon-blue); display: block; margin-bottom: 2px; font-size: 14.5px;}
+    </style>
+</head>
+<body>
+
+<div class="city-container">
+    <div class="title-top">
+        <h1>20 Nhiệm Vụ Công Nghệ Chiến Lược</h1>
+        <p>Quyết định số 808/QĐ-TTg — Bấm vào các điểm để xem chi tiết đầy đủ 20 nhiệm vụ quốc gia</p>
+    </div>
+
+    <div class="hotspots-wrapper">
+        <div class="hotspot" id="spot-nhom1" onclick="openInfo('nhom1')">
+            <div class="hotspot-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            </div>
+            <div class="hotspot-label">Chuyển đổi số & Viễn thông (NV 1-5)</div>
+        </div>
+
+        <div class="hotspot" id="spot-nhom2" onclick="openInfo('nhom2')">
+            <div class="hotspot-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM3.48 9L12 4.35 20.52 9 12 13.65 3.48 9z"/></svg>
+            </div>
+            <div class="hotspot-label">Y tế, Giáo dục & Sinh học (NV 6-10)</div>
+        </div>
+
+        <div class="hotspot" id="spot-nhom3" onclick="openInfo('nhom3')">
+            <div class="hotspot-icon">
+                <svg viewBox="0 0 24 24"><path d="M19.93 11c-.14-3.65-2.26-6.83-5.43-8.4L13 5.07V2h-2v3.07L9.5 2.6C6.33 4.17 4.21 7.35 4.07 11H1v2h3.07c.14 3.65 2.26 6.83 5.43 8.4L11 18.93V22h2v-3.07l1.5 2.47c3.17-1.57 5.29-4.75 5.43-8.4H23v-2h-3.07z"/></svg>
+            </div>
+            <div class="hotspot-label">Công nghiệp, Năng lượng & AI (NV 11-15)</div>
+        </div>
+
+        <div class="hotspot" id="spot-nhom4" onclick="openInfo('nhom4')">
+            <div class="hotspot-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
+            </div>
+            <div class="hotspot-label">Vũ trụ, Nông nghiệp & An ninh (NV 16-20)</div>
+        </div>
+    </div>
+</div>
+
+<div id="infoModal" class="modal" onclick="closeModalOutside(event)">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeInfo()">&times;</span>
+        <div class="modal-header">
+            <div id="modalIconContainer"></div>
+            <h2 id="modalTitle">Tiêu đề</h2>
+        </div>
+        <div class="modal-body">
+            <ul id="modalList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const data = {
+        'nhom1': {
+            title: "Khối 1: Chuyển Đổi Số Hạ Tầng & Viễn Thông Mới",
+            icon: '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>',
+            items: [
+                "<strong>Nhiệm vụ 1: Phát triển mạng viễn thông thế hệ mới (6G):</strong> Tập trung nghiên cứu các chuẩn băng thông siêu rộng, kiến trúc mạng lượng tử, và thử nghiệm các thiết bị phát sóng phần cứng nội địa phục vụ lộ trình tiến lên 6G trước năm 2030.",
+                "<strong>Nhiệm vụ 2: Số hóa đồng bộ cơ sở dữ liệu quốc gia dân cư và GIS:</strong> Chuẩn hóa liên thông dữ liệu thông tin địa lý và dân cư, xây dựng bản đồ số quốc gia tích hợp đa tầng để tối ưu quản lý hành chính.",
+                "<strong>Nhiệm vụ 3: Làm chủ hạ tầng điện toán đám mây trung tâm (Cloud):</strong> Xây dựng các cụm Data Center chuẩn Tier 4 bảo mật cao, giảm hoàn toàn sự phụ thuộc vào các dịch vụ lưu trữ đám mây nước ngoài đối với dữ liệu công.",
+                "<strong>Nhiệm vụ 4: Ứng dụng công nghệ Chuỗi khối (Blockchain) trong dịch vụ công:</strong> Ứng dụng mã hóa bảo mật để minh bạch hóa quy trình hành chính công, quản lý văn bằng, chứng chỉ và giao dịch đất đai không thể giả mạo.",
+                "<strong>Nhiệm vụ 5: Tối ưu hoá mạng lưới kết nối vạn vật (IoT) đô thị:</strong> Thiết lập mạng lưới cảm biến thu thập thông tin thời gian thực về môi trường, nguồn nước và mật độ dân sinh tại các thành phố trọng điểm."
+            ]
+        },
+        'nhom2': {
+            title: "Khối 2: Y Tế Số, Đổi Mới Giáo Dục & Công Nghệ Sinh Học",
+            icon: '<svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM3.48 9L12 4.35 20.52 9 12 13.65 3.48 9z"/></svg>',
+            items: [
+                "<strong>Nhiệm vụ 6: Hoàn thiện hồ sơ sức khỏe điện tử liên thông toàn dân:</strong> Kết nối thông suốt lịch sử khám chữa bệnh giữa trạm y tế xã, bệnh viện địa phương và các trung tâm chuyên khoa tuyến Trung ương.",
+                "<strong>Nhiệm vụ 7: Thử nghiệm giải pháp khám bệnh từ xa nâng cao (Telehealth):</strong> Tích hợp các thiết bị đo sinh hiệu IoT cầm tay và AI chẩn đoán hình ảnh sơ bộ để hỗ trợ y tế tuyến đầu và vùng hải đảo xa xôi.",
+                "<strong>Nhiệm vụ 8: Ứng dụng lớp học tương tác thông minh và học liệu số:</strong> Chuyển đổi phương thức giảng dạy thông qua kho bài giảng số hóa dùng chung, mô phỏng 3D/VR cho các ngành kỹ thuật y khoa và tự nhiên.",
+                "<strong>Nhiệm vụ 9: Số hóa hoàn toàn quy trình xét tuyển và quản lý bằng cấp số:</strong> Triển khai xác thực chứng chỉ học tập toàn quốc trên nền tảng số hóa, triệt tiêu tình trạng gian lận học bạ.",
+                "<strong>Nhiệm vụ 10: Phát triển sản phẩm sinh học hữu cơ và giải mã gen bản địa:</strong> Ứng dụng công nghệ gen để bảo tồn dược liệu quý hiếm, phát triển vắc-xin thế hệ mới và các bộ kit xét nghiệm sinh học chính xác cao."
+            ]
+        },
+        'nhom3': {
+            title: "Khối 3: Công Nghiệp Công Nghệ Cao, Năng Lượng & Trí Tuệ Nhân Tạo",
+            icon: '<svg viewBox="0 0 24 24"><path d="M19.93 11c-.14-3.65-2.26-6.83-5.43-8.4L13 5.07V2h-2v3.07L9.5 2.6C6.33 4.17 4.21 7.35 4.07 11H1v2h3.07c.14 3.65 2.26 6.83 5.43 8.4L11 18.93V22h2v-3.07l1.5 2.47c3.17-1.57 5.29-4.75 5.43-8.4H23v-2h-3.07z"/></svg>',
+            items: [
+                "<strong>Nhiệm vụ 11: Làm chủ thiết kế và sản xuất chip bán dẫn (Semiconductor):</strong> Nghiên cứu chế tạo các dòng vi mạch tích hợp cơ bản, phát triển phòng lab kiểm thử chip đạt tiêu chuẩn toàn cầu.",
+                "<strong>Nhiệm vụ 12: Ứng dụng Trí tuệ nhân tạo (AI) trong dây chuyền tự động:</strong> Tích hợp cánh tay robot thông minh, thị giác máy tính vào giám sát kiểm định chất lượng sản phẩm công nghiệp nặng không cần con người.",
+                "<strong>Nhiệm vụ 13: Nghiên cứu phát triển nguồn năng lượng mới (Hydrogen/Sạch):</strong> Đầu tư công nghệ lưu trữ năng lượng pin Lithium công suất lớn, sản xuất hydro xanh từ năng lượng gió ngoài khơi nhằm giảm phát thải ròng.",
+                "<strong>Nhiệm vụ 14: Xây dựng hệ thống lưới điện thông minh hạ tầng quốc gia (Smart Grid):</strong> Ứng dụng thuật toán phân phối tự động dòng điện, dự báo lượng điện tiêu thụ để tối ưu hóa công suất nhà máy thủy điện, điện mặt trời.",
+                "<strong>Nhiệm vụ 15: Nghiên cứu chế tạo vật liệu mới siêu bền, siêu nhẹ:</strong> Phát triển các polyme tiên tiến, sợi carbon ứng dụng cho ngành công nghiệp cơ khí chế tạo ô tô điện và vật liệu xây dựng thông minh."
+            ]
+        },
+        'nhom4': {
+            title: "Khối 4: Công Nghệ Vũ Trụ, Nông Nghiệp Thông Minh & An Ninh Mạng",
+            icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>',
+            items: [
+                "<strong>Nhiệm vụ 16: Phát triển vệ tinh viễn thám và định vị tọa độ nội địa:</strong> Tăng cường khả năng chụp ảnh bề mặt quốc gia từ không gian, chủ động nguồn dữ liệu viễn thám phục vụ phát triển kinh tế biển.",
+                "<strong>Nhiệm vụ 17: Số hóa quy trình quản lý thiên tai và biến đổi khí hậu:</strong> Sử dụng dữ liệu trạm khí tượng kết hợp mô hình AI để mô phỏng chính xác hướng đi của bão, lũ quét, sạt lở đất tại miền Trung và miền núi.",
+                "<strong>Nhiệm vụ 18: Tự động hóa nông nghiệp số và quản lý vùng chuyên canh:</strong> Thiết lập hệ thống tưới tiêu tự động điều khiển từ xa bằng drone, ứng dụng AI phát hiện sớm sâu bệnh trên quy mô đồng ruộng lớn.",
+                "<strong>Nhiệm vụ 19: Lồng ghép an ninh mạng thế hệ mới vào hệ thống tài chính:</strong> Phát triển các tường lửa bảo mật đa tầng bằng mật mã học lượng tử để chống lại các cuộc tấn công mã độc tống tiền (Ransomware) vào ngân hàng.",
+                "<strong>Nhiệm vụ 20: Thiết lập cơ chế phối hợp tác chiến an toàn thông tin giữa 10 Bộ:</strong> Đồng bộ trung tâm ứng cứu khẩn cấp máy tính, chia sẻ lỗ hổng bảo mật theo thời gian thực giữa các cơ quan quản lý chiến lược."
+            ]
+        }
+    };
+
+    function openInfo(key) {
+        const item = data[key];
+        document.getElementById('modalTitle').innerText = item.title;
+        document.getElementById('modalIconContainer').innerHTML = item.icon;
+        const list = document.getElementById('modalList');
+        list.innerHTML = "";
+        item.items.forEach(text => {
+            const li = document.createElement('li');
+            li.innerHTML = text;
+            list.appendChild(li);
+        });
+        document.getElementById('infoModal').style.display = 'flex';
+        // Đưa thanh cuộn về đầu trang mỗi khi mở pop-up mới
+        document.querySelector('.modal-body').scrollTop = 0;
+    }
+
+    function closeInfo() { document.getElementById('infoModal').style.display = 'none'; }
+    function closeModalOutside(e) { if(e.target.className === 'modal') closeInfo(); }
+</script>
+
+</body>
+</html>
