@@ -1,1 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ô Chữ An Toàn Giao Thông</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #2c3e50, #4ca1af); color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #game-container { background: rgba(255, 255, 255, 0.95); color: #333; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 700px; }
+        .row-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .row-container { display: flex; gap: 5px; justify-content: flex-start; }
+        .cell { width: 40px; height: 40px; border: 2px solid #bdc3c7; display: flex; align-items: center; justify-content: center; font-weight: bold; background: #ecf0f1; text-transform: uppercase; border-radius: 5px; }
+        .cell.solved { background: #3498db; color: white; border-color: #2980b9; }
+        .cell.yellow-active { background: #f1c40f !important; color: #2c3e50; transform: scale(1.1); box-shadow: 0 0 10px #f1c40f; z-index: 2; }
+        
+        #question-list { margin: 15px 0; border: 2px solid #3498db; padding: 10px; border-radius: 10px; background: #f0f7ff; }
+        .q-item { padding: 10px; margin-bottom: 5px; cursor: pointer; border-radius: 5px; background: white; border: 1px solid #ddd; word-wrap: break-word; white-space: normal; }
+        .q-item:hover { background: #dbeafe; }
+        .q-item.selected { background: #3498db; color: white; font-weight: bold; }
+        
+        button, input { padding: 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; margin-top: 5px; width: 100%; box-sizing: border-box; }
+        button { background: #27ae60; color: white; font-weight: bold; border: none; }
+        
+        #message { margin-top: 20px; padding: 20px; border-radius: 10px; display: none; text-align: center; border: 3px solid #f1c40f; }
+        .flash-text { animation: flash 1.5s infinite; }
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .instruction { font-size: 0.9em; color: #555; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>TRÒ CHƠI Ô CHỮ GIAO THÔNG</h1>
+    <div id="game-container">
+        <div id="grid"></div>
+        <hr>
+        <p>Chọn câu hỏi:</p>
+        <div id="question-list"></div>
+        <div class="instruction">* Nhập đáp án viết liền, không dấu.</div>
+        <input type="text" id="answer" placeholder="Nhập đáp án...">
+        <button onclick="submitAnswer()">TRẢ LỜI</button>
+        <div id="message"></div>
+    </div>
+    <script>
+        const data = [
+            { answer: "LANGLACH", length: 8, yellowIndex: 5, question: "Hành vi điều khiển xe thay đổi hướng liên tục, vượt qua các phương tiện một cách nguy hiểm?", solved: false },
+            { answer: "DENTINHIEU", length: 10, yellowIndex: 2, question: "Thiết bị dùng ba màu đỏ, vàng, xanh để điều khiển phương tiện qua nút giao gọi là gì?", solved: false },
+            { answer: "TOCDO", length: 5, yellowIndex: 0, question: "Vượt quá giới hạn này là một trong những nguyên nhân gây tai nạn giao thông nghiêm trọng?", saved: false },
+            { answer: "NONGDOCON", length: 9, yellowIndex: 5, question: "Chỉ số nào trong hơi thở hoặc máu mà Cảnh sát giao thông thường xuyên kiểm tra?", solved: false },
+            { answer: "GIAYPHEPLAIXE", length: 13, yellowIndex: 2, question: "Loại giấy tờ nào chứng minh người điều khiển phương tiện đủ điều kiện lái xe?", solved: false },
+            { answer: "SAILAN", length: 6, yellowIndex: 5, question: "Điều khiển xe không đúng vị trí được phân chia trên đường gọi là gì?", solved: false }
+        ];
+        let currentIdx = null;
+        const gridElement = document.getElementById('grid');
+        const listElement = document.getElementById('question-list');
 
+        function updateUI() {
+            gridElement.innerHTML = '';
+            listElement.innerHTML = '';
+            let solvedCount = 0;
+            data.forEach((item, index) => {
+                if (item.solved) solvedCount++;
+                else {
+                    const div = document.createElement('div');
+                    div.className = 'q-item' + (currentIdx === index ? ' selected' : '');
+                    div.innerText = `Câu ${index + 1}: ${item.question}`;
+                    div.onclick = () => { currentIdx = index; updateUI(); };
+                    listElement.appendChild(div);
+                }
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'row-wrapper';
+                const row = document.createElement('div');
+                row.className = 'row-container';
+                for (let i = 0; i < item.length; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell' + (item.solved ? ' solved' : '');
+                    if (item.solved) {
+                        cell.innerText = item.answer[i];
+                        if (i === item.yellowIndex) cell.classList.add('yellow-active');
+                    }
+                    row.appendChild(cell);
+                }
+                wrapper.appendChild(row);
+                gridElement.appendChild(wrapper);
+            });
+            if (solvedCount === data.length) showFinalMessage();
+        }
+
+        function submitAnswer() {
+            if (currentIdx === null) return alert("Vui lòng chọn câu hỏi!");
+            const val = document.getElementById('answer').value.replace(/ /g, "").toUpperCase();
+            if (val === data[currentIdx].answer) {
+                data[currentIdx].solved = true;
+                currentIdx = null;
+                document.getElementById('answer').value = '';
+                updateUI();
+            } else alert("Sai rồi, thử lại nhé!");
+        }
+
+        function showFinalMessage() {
+            const msg = document.getElementById('message');
+            msg.style.display = 'block';
+            msg.style.background = '#27ae60';
+            msg.className = 'flash-text'; 
+            msg.innerHTML = "<h3 style='color:white;'>🎉 CHÚC MỪNG!</h3><p style='color:white;'>Từ khóa bạn đã giải được là: <b>AN TOÀN</b></p><p style='color:white;'>Hãy luôn ghi nhớ: <i>'AN TOÀN giao thông bắt đầu từ ý thức của mỗi người. Hãy chấp hành luật giao thông để bảo vệ chính mình và cộng đồng!'</i></p>";
+        }
+        updateUI();
+    </script>
+</body>
+</html>
