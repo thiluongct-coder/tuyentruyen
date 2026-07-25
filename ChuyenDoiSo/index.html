@@ -6,16 +6,122 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #ffffff 100%); min-height: 100vh; padding: 50px 8%; }
+        
         .back-btn { display: inline-block; margin-bottom: 20px; color: #2563eb; font-weight: 600; text-decoration: none; }
+        .back-btn:hover { text-decoration: underline; }
+        
         .box { background: #e0f2fe; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { margin-bottom: 20px; color: #1e293b; }
+        h1 { margin-bottom: 10px; color: #1e293b; }
+        .description { color: #475569; margin-bottom: 20px; font-size: 1.05rem; }
+
+        /* Tiêu đề phân chia các khu vực */
+        .section-title {
+            font-size: 1.2rem;
+            color: #1e293b;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #cbd5e1;
+        }
+
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* 1. THẺ BÀI VIẾT (Tông Xanh - Nghiêm túc) */
+        .post-tag {
+            display: block;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .post-tag:hover {
+            border-color: #3b82f6; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 15px rgba(59, 130, 246, 0.15);
+        }
+        .post-title { font-size: 1.15rem; font-weight: 700; color: #2563eb; margin-bottom: 5px; }
+        .post-summary { font-size: 0.95rem; color: #64748b; }
+
+        /* 2. THẺ TƯƠNG TÁC (Tông Vàng/Cam - Năng động) */
+        .interactive-tag {
+            display: block;
+            background: #fffbeb; /* Nền vàng nhạt */
+            padding: 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            position: relative; /* Để gắn thẻ "HOT" hoặc "MỚI" nếu cần */
+            overflow: hidden;
+        }
+        .interactive-tag:hover {
+            border-color: #f59e0b; /* Viền cam khi trỏ chuột */
+            background: #fef3c7; /* Nền đậm lên chút */
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 15px rgba(245, 158, 11, 0.15);
+        }
+        .interactive-title { font-size: 1.15rem; font-weight: 700; color: #d97706; margin-bottom: 5px; }
+        .interactive-summary { font-size: 0.95rem; color: #78350f; }
+
+        /* Nút nhãn dán nhỏ (Badge) góc phải */
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ef4444; /* Màu đỏ */
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
     <a href="https://thiluongct-coder.github.io/tuyentruyen/index.html" class="back-btn">← Quay lại trang chủ</a>
+    
     <div class="box">
         <h1>🌐 Chuyển đổi số</h1>
-        <p>Nội dung chi tiết về Nghị quyết 57, Đề án 06 và các kỹ năng số.</p>
+        <p class="description">Danh mục các tài liệu tuyên truyền và hoạt động kiểm tra kiến thức.</p>
+        
+        <!-- ================= KHU VỰC 1: TÀI LIỆU ================= -->
+        <h2 class="section-title">📚 Tài liệu & Chuyên đề</h2>
+        <div class="link-list">
+            <a href="de-an-06.html" class="post-tag">
+                <div class="post-title">1. Trọng tâm Đề án 06</div>
+                <div class="post-summary">Nội dung chi tiết về ứng dụng dữ liệu dân cư và định danh điện tử.</div>
+            </a>
+            <a href="nghi-quyet-57.html" class="post-tag">
+                <div class="post-title">2. Nghị quyết 57</div>
+                <div class="post-summary">Nội dung cốt lõi và các chỉ tiêu chuyển đổi số cần đạt được.</div>
+            </a>
+        </div>
+
+        <!-- ================= KHU VỰC 2: TƯƠNG TÁC ================= -->
+        <h2 class="section-title">🎯 Hoạt động & Đánh giá</h2>
+        <div class="link-list">
+            
+            <!-- Thẻ Trắc nghiệm -->
+            <a href="trac-nghiem.html" class="interactive-tag">
+                <span class="badge">HOT</span>
+                <div class="interactive-title">📝 Bài kiểm tra trắc nghiệm</div>
+                <div class="interactive-summary">Làm bài kiểm tra đánh giá kiến thức có chấm điểm tự động.</div>
+            </a>
+
+            <!-- Thẻ Trò chơi / Ô chữ -->
+            <a href="tro-choi.html" class="interactive-tag">
+                <div class="interactive-title">🧩 Giải ô chữ: Kỹ năng số</div>
+                <div class="interactive-summary">Vừa học vừa chơi thông qua việc giải mã các từ khóa an toàn thông tin.</div>
+            </a>
+
+        </div>
     </div>
 </body>
 </html>
