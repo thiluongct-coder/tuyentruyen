@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hành trình an toàn giao thông</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #e9ecef; display: flex; justify-content: center; padding: 20px; }
+        #game-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); max-width: 600px; width: 100%; text-align: center; }
+        #visual { font-size: 80px; margin: 20px 0; }
+        button { display: block; width: 100%; margin: 10px 0; padding: 15px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 8px; transition: 0.3s; }
+        button:hover { background: #34495e; transform: scale(1.02); }
+    </style>
+</head>
+<body>
 
+<div id="game-container">
+    <div id="visual">🏍️</div>
+    <div id="story" style="font-size: 1.2em; font-weight: bold; margin-bottom: 20px;"></div>
+    <div id="choices"></div>
+</div>
+
+<script>
+    const gameData = {
+        start: {
+            img: "🌧️",
+            text: "Nam đi làm về thì gặp mưa lớn. Đường trơn trượt, tầm nhìn hạn chế.",
+            options: [
+                {t: "Chạy thật nhanh để về cho kịp giờ", n: "lose1"},
+                {t: "Tấp vào lề, mặc áo mưa cẩn thận", n: "scene2"},
+                {t: "Vừa đi vừa nghe điện thoại", n: "lose2"}
+            ]
+        },
+        scene2: {
+            img: "🚦",
+            text: "Đến ngã tư, đèn tín hiệu bất ngờ chuyển sang màu vàng.",
+            options: [
+                {t: "Tăng ga vượt cho nhanh", n: "lose3"},
+                {t: "Phanh gấp giữa ngã tư", n: "lose4"},
+                {t: "Giảm tốc độ, dừng lại trước vạch", n: "scene3"}
+            ]
+        },
+        scene3: {
+            img: "👵",
+            text: "Còn 500m nữa là về nhà, thấy một cụ già đang loay hoay muốn qua đường.",
+            options: [
+                {t: "Lách qua thật nhanh để không vướng", n: "lose5"},
+                {t: "Dừng xe, xuống hỗ trợ cụ bà", n: "win"},
+                {t: "Bóp còi inh ỏi để cụ nhường đường", n: "lose6"}
+            ]
+        },
+        win: { img: "🏠", text: "Bạn đã giúp cụ bà an toàn. Nam về nhà trong niềm vui. Nhiệm vụ hoàn thành!", options: [{t: "Chơi lại từ đầu", n: "start"}] },
+        lose1: { img: "💥", text: "Phóng nhanh trong mưa gây trượt bánh. Rất nguy hiểm!", options: [{t: "Thử lại", n: "start"}] },
+        lose2: { img: "📱", text: "Mất tập trung vì điện thoại, suýt va chạm với xe khác!", options: [{t: "Thử lại", n: "start"}] },
+        lose3: { img: "⚠️", text: "Vượt vàng là lỗi phổ biến. Bạn bị CSGT nhắc nhở!", options: [{t: "Thử lại", n: "start"}] },
+        lose4: { img: "🚗", text: "Phanh gấp gây va chạm liên hoàn phía sau!", options: [{t: "Thử lại", n: "start"}] },
+        lose5: { img: "😔", text: " Thiếu sự sẻ chia trên đường phố. Hãy nhân văn hơn nhé!", options: [{t: "Thử lại", n: "start"}] },
+        lose6: { img: "📢", text: "Sử dụng còi sai quy định gây mất trật tự công cộng!", options: [{t: "Thử lại", n: "start"}] }
+    };
+
+    function render(node) {
+        let current = gameData[node];
+        document.getElementById("visual").innerText = current.img;
+        document.getElementById("story").innerText = current.text;
+        let choiceContainer = document.getElementById("choices");
+        choiceContainer.innerHTML = "";
+        current.options.forEach(opt => {
+            let btn = document.createElement("button");
+            btn.innerText = opt.t;
+            btn.onclick = () => render(opt.n);
+            choiceContainer.appendChild(btn);
+        });
+    }
+    render("start");
+</script>
+</body>
+</html>
