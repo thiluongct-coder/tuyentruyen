@@ -1,1 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Tuyên Truyền Luật Giao Thông</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col justify-between font-sans selection:bg-blue-500 selection:text-white">
 
+    <header class="bg-blue-700 text-white shadow-md py-4 px-6 text-center">
+        <h1 class="text-xl md:text-2xl font-bold uppercase tracking-wide">Cổng Thông Tin Điện Tử Công An Địa Phương</h1>
+        <p class="text-sm opacity-90 mt-1">Chuyên mục: Tìm hiểu Luật Giao thông Đường thủy & Đường bộ</p>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 md:p-8 transition-all duration-300">
+            
+            <div id="start-screen" class="text-center py-6">
+                <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    <i class="fa-solid class=fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Trắc Nghiệm Tương Tác</h2>
+                <p class="text-slate-600 mb-6 max-w-md mx-auto">Hãy cùng kiểm tra kiến thức về Luật giao thông để bảo vệ bản thân và gia đình khi tham gia giao thông nhé!</p>
+                <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition shadow-lg cursor-pointer">
+                    Bắt đầu tương tác <i class="fa-solid fa-play ml-2"></i>
+                </button>
+            </div>
+
+            <div id="quiz-screen" class="hidden">
+                <div class="flex justify-between items-center mb-4 text-sm font-semibold text-slate-500">
+                    <span id="progress-text">Câu hỏi 1/3</span>
+                    <span id="score-live" class="text-emerald-600">Đúng: 0</span>
+                </div>
+                <div class="w-full bg-slate-200 h-2 rounded-full mb-6 overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-300" style="width: 33%"></div>
+                </div>
+
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-slate-800 mb-6">Đang tải câu hỏi...</h3>
+
+                <div id="answers-container" class="space-y-3 mb-6">
+                    </div>
+
+                <div id="explanation-box" class="hidden bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl mb-6 text-sm text-slate-700 transition-all">
+                    <strong class="text-blue-800"><i class="fa-solid fa-circle-info mr-1"></i> Kiến thức bổ sung:</strong>
+                    <p id="explanation-text" class="mt-1"></p>
+                </div>
+
+                <div class="flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" disabled class="bg-slate-400 text-white font-semibold px-6 py-2.5 rounded-xl cursor-not-allowed transition duration-200">
+                        Câu tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="result-screen" class="hidden text-center py-6">
+                <div id="result-icon" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
+                    </div>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-800 mb-1">Hoàn thành bài đánh giá!</h2>
+                <p id="result-score" class="text-xl font-semibold text-blue-600 mb-4">Bạn đạt: 0/0 câu đúng</p>
+                <p id="result-feedback" class="text-slate-600 mb-6 max-w-md mx-auto"></p>
+                
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="restartQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition cursor-pointer">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Thử sức lại
+                    </button>
+                    <a href="#" class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-6 py-3 rounded-xl transition flex items-center justify-center">
+                        <i class="fa-solid fa-house mr-1"></i> Về Trang Chủ
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 text-xs py-3 text-center border-t border-slate-700">
+        &copy; 2026 Trang Cổng Thông Tin Điện Tử Công An. Thiết kế chạy trực tiếp không cần Server.
+    </footer>
+
+    <script>
+        // 1. Kho dữ liệu câu hỏi (Bạn có thể tự do thêm, bớt hoặc sửa nội dung ở đây)
+        const quizData = [
+            {
+                question: "Theo Luật Giao thông đường thủy nội địa, người lái phương tiện thô sơ có công suất máy dưới 5 sức ngựa hoặc sức chở dưới 5 người phải đảm bảo điều kiện nào?",
+                answers: [
+                    "A. Phải có bằng thuyền trưởng hạng ba trở lên.",
+                    "B. Phải từ đủ 15 tuổi trở lên, biết bơi, biết luật giao thông đường thủy và được tập huấn.",
+                    "C. Phải từ đủ 18 tuổi trở lên, biết bơi, biết luật và không cần tập huấn.",
+                    "D. Không cần điều kiện gì vì đây là phương tiện nhỏ."
+                ],
+                correct: 1, // Vị trí đáp án đúng trong mảng (B là vị trí số 1)
+                explain: "Người lái phương tiện không có động cơ trọng tải toàn phần dưới 5 tấn hoặc có sức chở dưới 12 người, phương tiện có động cơ công suất máy dưới 5 sức ngựa hoặc có sức chở dưới 5 người phải từ đủ 15 tuổi trở lên, đủ sức khỏe, biết bơi, biết pháp luật về giao thông đường thủy nội địa và phải được tập huấn."
+            },
+            {
+                question: "Khi điều khiển xe máy tham gia giao thông trên đường bộ, người lái xe có được phép sử dụng ô (dù), điện thoại di động, thiết bị âm thanh (trừ thiết bị trợ thính) hay không?",
+                answers: [
+                    "A. Được sử dụng nếu đi với tốc độ chậm dưới 20km/h.",
+                    "B. Chỉ được sử dụng điện thoại và thiết bị âm thanh, không được che ô.",
+                    "C. Hoàn toàn không được phép sử dụng.",
+                    "D. Được sử dụng nếu có tai nghe Bluetooth kết nối sẵn."
+                ],
+                correct: 2, // C là vị trí số 2
+                explain: "Theo Luật Giao thông đường bộ, người điều khiển xe mô tô hai bánh, xe mô tô ba bánh, xe gắn máy không được thực hiện các hành vi sử dụng ô, điện thoại di động, thiết bị âm thanh nhằm đảm bảo an toàn tuyệt đối."
+            },
+            {
+                question: "Theo quy định mới nhất của Luật Căn cước, công dân Việt Nam từ bao nhiêu tuổi trở lên bắt buộc phải thực hiện thủ tục cấp thẻ Căn cước?",
+                answers: [
+                    "A. Từ đủ 14 tuổi trở lên.",
+                    "B. Từ đủ 16 tuổi trở lên.",
+                    "C. Từ đủ 18 tuổi trở lên.",
+                    "D. Từ khi sinh ra (cấp theo nhu cầu, không bắt buộc)."
+                ],
+                correct: 0, // A là vị trí số 0
+                explain: "Luật Căn cước quy định: Người được cấp thẻ căn cước là công dân Việt Nam. Công dân Việt Nam từ đủ 14 tuổi trở lên bắt buộc phải thực hiện thủ tục cấp thẻ căn cước."
+            }
+        ];
+
+        // 2. Biến quản lý trạng thái bài thi
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let hasAnswered = false;
+
+        // Các phần tử giao diện
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationText = document.getElementById('explanation-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreLive = document.getElementById('score-live');
+
+        // 3. Hàm bắt đầu bài thi
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            scoreLive.innerText = `Đúng: ${score}`;
+            loadQuestion();
+        }
+
+        // 4. Hàm tải câu hỏi hiện tại lên giao diện
+        function loadQuestion() {
+            hasAnswered = false;
+            explanationBox.classList.add('hidden');
+            
+            // Cập nhật trạng thái nút Tiếp theo
+            nextBtn.disabled = true;
+            nextBtn.className = "bg-slate-400 text-white font-semibold px-6 py-2.5 rounded-xl cursor-not-allowed transition duration-200";
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerHTML = `Xem kết quả <i class="fa-solid fa-square-poll-vertical ml-1"></i>`;
+            } else {
+                nextBtn.innerHTML = `Câu tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>`;
+            }
+
+            // Cập nhật Thanh tiến trình
+            const progressPercent = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.innerText = `Câu hỏi ${currentQuestionIndex + 1}/${quizData.length}`;
+
+            // Hiển thị nội dung câu hỏi
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionText.innerText = currentQuestion.question;
+
+            // Xóa đáp án cũ, chèn đáp án mới
+            answersContainer.innerHTML = '';
+            currentQuestion.answers.forEach((answer, index) => {
+                const button = document.createElement('button');
+                button.innerText = answer;
+                // Style cơ bản cho các nút đáp án ban đầu
+                button.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition font-medium text-slate-700 flex justify-between items-center cursor-pointer";
+                button.onclick = () => selectAnswer(index, button);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        // 5. Hàm xử lý khi người dùng click chọn 1 đáp án
+        function selectAnswer(selectedIndex, selectedButton) {
+            if (hasAnswered) return; // Nếu đã chọn rồi thì khóa, không cho bấm lại
+            hasAnswered = true;
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const allButtons = answersContainer.getElementsByTagName('button');
+
+            // Duyệt qua tất cả các đáp án để đổi màu hiệu ứng đúng/sai
+            Array.from(allButtons).forEach((btn, idx) => {
+                btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50/50', 'cursor-pointer');
+                btn.classList.add('cursor-default');
+
+                if (idx === currentQuestion.correct) {
+                    // Đáp án đúng luôn đổi thành màu Xanh lá
+                    btn.className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-semibold text-emerald-800 flex justify-between items-center cursor-default animate-pulse";
+                    btn.innerHTML += ` <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>`;
+                } else if (idx === selectedIndex && selectedIndex !== currentQuestion.correct) {
+                    // Người dùng chọn sai thì nút đó đổi thành màu Đỏ
+                    btn.className = "w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-50 font-semibold text-rose-800 flex justify-between items-center cursor-default";
+                    btn.innerHTML += ` <i class="fa-solid fa-circle-xmark text-rose-600 text-lg"></i>`;
+                }
+            });
+
+            // Cộng điểm nếu trả lời đúng
+            if (selectedIndex === currentQuestion.correct) {
+                score++;
+                scoreLive.innerText = `Đúng: ${score}`;
+            }
+
+            // Hiển thị khung giải thích luật pháp
+            explanationText.innerText = currentQuestion.explain;
+            explanationBox.classList.remove('hidden');
+
+            // Kích hoạt nút Tiếp theo
+            nextBtn.disabled = false;
+            nextBtn.className = "bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl cursor-pointer transition duration-200 shadow-md";
+        }
+
+        // 6. Hàm chuyển câu hoặc kết thúc
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 7. Hàm hiển thị màn hình kết quả cuối cùng
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultScore = document.getElementById('result-score');
+            const resultFeedback = document.getElementById('result-feedback');
+
+            resultScore.innerText = `Bạn trả lời đúng: ${score}/${quizData.length} câu`;
+
+            // Tự động phân loại đánh giá theo số điểm
+            const scorePercent = (score / quizData.length) * 100;
+            if (scorePercent === 100) {
+                resultIcon.className = "w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl";
+                resultIcon.innerHTML = `<i class="fa-solid fa-award"></i>`;
+                resultTitle.innerText = "Xuất sắc! Thiên tài Am Hiểu Luật";
+                resultFeedback.innerText = "Xin chúc mừng! Bạn nắm rất vững kiến thức pháp luật giao thông và quy định căn cước. Hãy tiếp tục phát huy và tuyên truyền tới mọi người xung quanh nhé!";
+            } else if (scorePercent >= 50) {
+                resultIcon.className = "w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl";
+                resultIcon.innerHTML = `<i class="fa-solid fa-thumbs-up"></i>`;
+                resultTitle.innerText = "Rất Tốt! Đạt Yêu Cầu";
+                resultFeedback.innerText = "Bạn có kiến thức nền tảng tương đối tốt. Chỉ cần lưu ý kỹ một số trường hợp đặc biệt để tham gia giao thông an toàn hơn.";
+            } else {
+                resultIcon.className = "w-24 h-24 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl";
+                resultIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+                resultTitle.innerText = "Cần Tìm Hiểu Thêm!";
+                resultFeedback.innerText = "Có vẻ bạn chưa nắm rõ một số luật giao thông đường thủy và đường bộ quan trọng. Hãy bấm nút chơi lại để đọc kỹ phần giải thích nhé!";
+            }
+        }
+
+        // 8. Hàm chơi lại từ đầu
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
