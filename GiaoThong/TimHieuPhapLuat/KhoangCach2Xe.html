@@ -1,1 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tính Khoảng Cách An Toàn Giữa Hai Xe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Hiệu ứng vạch đường cao tốc di chuyển giả lập xe đang chạy */
+        @keyframes moveRoad {
+            0% { background-position-x: 0px; }
+            100% { background-position-x: -40px; }
+        }
+        .animated-road {
+            background-image: linear-gradient(90deg, #fff 50%, transparent 50%);
+            background-size: 40px 4px;
+            background-repeat: repeat-x;
+            background-position: center;
+            animation: moveRoad 0.4s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
+    <header class="bg-blue-800 text-white shadow-md py-4 px-6 text-center">
+        <h1 class="text-xl md:text-2xl font-bold uppercase tracking-wide">
+            <i class="fa-solid fa-road text-amber-400 mr-2"></i>Hệ Thống Trực Quan Hóa Khoảng Cách An Toàn
+        </h1>
+        <p class="text-xs md:text-sm opacity-90 mt-1">Căn cứ theo Thông tư số 38/2024/TT-BGTVT của Bộ Giao thông vận tải</p>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 flex-grow grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        
+        <div class="md:col-span-1 bg-white p-5 rounded-2xl shadow-md space-y-6">
+            <h2 class="text-base font-bold text-slate-800 border-b pb-2 flex items-center">
+                <i class="fa-solid fa-gauge-high text-blue-600 mr-2"></i>Thử nghiệm
+            </h2>
+            
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Tốc độ xe chạy:</label>
+                    <span id="speed-display" class="text-2xl font-black text-blue-700">60 <span class="text-sm font-normal text-slate-500">km/h</span></span>
+                </div>
+                <input type="range" id="speed-slider" min="0" max="120" value="60" step="5" oninput="updateDistance()" 
+                       class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+            </div>
+
+            <!-- Bảng chọn thời tiết thay thế cho text tĩnh -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3 text-xs text-slate-600">
+                <div class="flex flex-col space-y-2">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase">Tình trạng mặt đường:</span>
+                    <div class="flex flex-col space-y-2">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="weather" value="dry" checked class="accent-blue-600 w-4 h-4" onchange="updateDistance()">
+                            <span class="font-bold text-emerald-600"><i class="fa-solid fa-sun w-4"></i> Khô ráo</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="weather" value="rain" class="accent-sky-600 w-4 h-4" onchange="updateDistance()">
+                            <span class="font-bold text-sky-600"><i class="fa-solid fa-cloud-showers-heavy w-4"></i> Mưa, sương mù, trơn trượt</span>
+                        </label>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400 italic leading-tight border-t pt-2 mt-2">* Luật quy định: Khi trời mưa, sương mù, đường trơn trượt, phải giữ khoảng cách lớn hơn mức tối thiểu.</p>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-md space-y-6 flex flex-col justify-between min-h-[350px]">
+            
+            <div>
+                <h2 class="text-base font-bold text-slate-800 border-b pb-2 mb-6 flex items-center">
+                    <i class="fa-solid fa-eye text-emerald-600 mr-2"></i>Mô phỏng khoảng cách thực tế giữa 2 xe
+                </h2>
+
+                <div class="relative bg-slate-800 h-24 rounded-xl flex items-center px-4 overflow-hidden shadow-inner">
+                    <div class="absolute inset-x-0 h-1 animated-road opacity-40"></div>
+
+                    <div class="w-full flex items-center justify-between transition-all duration-300">
+                        
+                        <div class="flex flex-col items-center z-10">
+                            <span class="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1 animate-bounce">Xe bạn</span>
+                            <div class="text-3xl text-blue-400 drop-shadow"><i class="fa-solid fa-car-side"></i></div>
+                        </div>
+
+                        <div id="road-gap" class="flex-grow mx-2 border-b-2 border-dashed border-amber-400 flex items-center justify-center transition-all duration-300" style="width: 35%;">
+                            <span id="gap-display-inline" class="bg-amber-100 text-amber-800 text-xs font-black px-2 py-0.5 rounded-full border border-amber-300 shadow-sm">35 mét</span>
+                        </div>
+
+                        <div class="flex flex-col items-center z-10">
+                            <span class="bg-slate-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1 opacity-0">Xe trước</span>
+                            <div class="text-3xl text-slate-400 drop-shadow"><i class="fa-solid fa-car-side"></i></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div id="box-distance" class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
+                    <span id="title-distance" class="text-[11px] uppercase font-bold text-amber-800 tracking-wider">Khoảng cách an toàn tối thiểu</span>
+                    <div id="res-distance" class="text-3xl font-black text-amber-600 mt-0.5">35 mét</div>
+                </div>
+
+                <div class="bg-slate-50 border-l-4 border-slate-500 p-4 rounded-r-xl flex flex-col justify-center text-xs text-slate-600">
+                    <strong class="text-slate-800 block"><i class="fa-solid fa-scale-balanced mr-1"></i>Quy định pháp luật:</strong>
+                    <p id="res-law" class="mt-0.5">Vận tốc V = 60 km/h → Khoảng cách tối thiểu là 35m.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 text-[11px] py-2.5 text-center border-t border-slate-700">
+        &copy; 2026 Cổng Thông Tin Điện Tử Công An • Công cụ chạy offline không cần Server.
+    </footer>
+
+    <script>
+        function updateDistance() {
+            const speed = parseInt(document.getElementById('speed-slider').value);
+            const isRaining = document.querySelector('input[name="weather"]:checked').value === 'rain';
+            
+            const speedDisplay = document.getElementById('speed-display');
+            const resDistance = document.getElementById('res-distance');
+            const resLaw = document.getElementById('res-law');
+            const roadGap = document.getElementById('road-gap');
+            const gapDisplayInline = document.getElementById('gap-display-inline');
+            
+            const boxDistance = document.getElementById('box-distance');
+            const titleDistance = document.getElementById('title-distance');
+
+            // Cập nhật số hiển thị tốc độ trên thanh trượt
+            speedDisplay.innerHTML = `${speed} <span class="text-sm font-normal text-slate-500">km/h</span>`;
+
+            let distance = 0;
+            let lawText = "";
+            let gapPercent = 10; 
+
+            // Áp dụng quy định tại Điều 11 Thông tư số 38/2024/TT-BGTVT
+            if (speed === 0) {
+                distance = 0;
+                lawText = "Xe đang dừng hẳn. Hãy giữ khoảng cách an toàn an ninh tối thiểu với xe phía trước.";
+                gapPercent = 5;
+            } else if (speed <= 60) {
+                distance = Math.round(5 + (speed * 30 / 60));
+                lawText = `Tốc độ V ≤ 60 km/h: Người điều khiển phải chủ động giữ khoảng cách an toàn phù hợp với xe chạy liền trước (Mô phỏng an toàn: ${distance}m).`;
+                gapPercent = 10 + Math.round((speed / 60) * 25);
+            } else if (speed > 60 && speed <= 80) {
+                distance = 55;
+                lawText = "Tốc độ 60 < V ≤ 80 km/h: Khoảng cách an toàn tối thiểu bắt buộc là 55m.";
+                gapPercent = 55;
+            } else if (speed > 80 && speed <= 100) {
+                distance = 70;
+                lawText = "Tốc độ 80 < V ≤ 100 km/h: Khoảng cách an toàn tối thiểu bắt buộc là 70m.";
+                gapPercent = 75;
+            } else if (speed > 100 && speed <= 120) {
+                distance = 90;
+                lawText = "Tốc độ 100 < V ≤ 120 km/h: Khoảng cách an toàn tối thiểu bắt buộc là 90m (Tốc độ kịch khung đường cao tốc).";
+                gapPercent = 95;
+            }
+
+            // Xử lý logic và giao diện khi chọn chế độ "Mưa / Trơn trượt"
+            if (isRaining && speed > 0) {
+                resDistance.innerText = `> ${distance} mét`;
+                gapDisplayInline.innerText = `> ${distance} m`;
+                lawText += "<br><strong class='text-sky-600 mt-1.5 block'><i class='fa-solid fa-triangle-exclamation'></i> Do mặt đường trơn trượt, bắt buộc phải gia tăng khoảng cách lớn hơn mức trên!</strong>";
+                gapPercent = Math.min(100, gapPercent + 15); // Kéo giãn thêm giao diện xe mô phỏng
+                
+                // Đổi tone màu sang tone mưa (Xanh dương)
+                boxDistance.className = "bg-sky-50 border-l-4 border-sky-500 p-4 rounded-r-xl";
+                titleDistance.className = "text-[11px] uppercase font-bold text-sky-800 tracking-wider";
+                resDistance.className = "text-3xl font-black text-sky-600 mt-0.5";
+                
+                roadGap.className = "flex-grow mx-2 border-b-2 border-dashed border-sky-400 flex items-center justify-center transition-all duration-300";
+                gapDisplayInline.className = "bg-sky-100 text-sky-800 text-xs font-black px-2 py-0.5 rounded-full border border-sky-300 shadow-sm";
+            } else {
+                resDistance.innerText = distance > 0 ? `${distance} mét` : "0 mét";
+                gapDisplayInline.innerText = `${distance} m`;
+
+                // Đổi tone màu về Khô ráo (Cam/Vàng)
+                boxDistance.className = "bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl";
+                titleDistance.className = "text-[11px] uppercase font-bold text-amber-800 tracking-wider";
+                resDistance.className = "text-3xl font-black text-amber-600 mt-0.5";
+                
+                roadGap.className = "flex-grow mx-2 border-b-2 border-dashed border-amber-400 flex items-center justify-center transition-all duration-300";
+                gapDisplayInline.className = "bg-amber-100 text-amber-800 text-xs font-black px-2 py-0.5 rounded-full border border-amber-300 shadow-sm";
+            }
+
+            resLaw.innerHTML = lawText;
+            roadGap.style.width = `${gapPercent}%`;
+            
+            if(distance === 0) {
+                gapDisplayInline.style.opacity = "0";
+            } else {
+                gapDisplayInline.style.opacity = "1";
+            }
+        }
+
+        // Chạy khởi tạo lần đầu khi mở trang
+        updateDistance();
+    </script>
+</body>
+</html>
