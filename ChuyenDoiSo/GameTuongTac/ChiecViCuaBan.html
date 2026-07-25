@@ -1,1 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dọn Dẹp Chiếc Ví - Đề án 06</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Chống highlight text khi vuốt trên điện thoại */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            color: #102a43;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        header h1 {
+            color: #0b69ff;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #486581;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Khu vực đích đến tự động xếp dọc trên điện thoại */
+        .drop-zones {
+            display: flex;
+            flex-direction: column; /* Xếp dọc cho màn hình nhỏ */
+            gap: 15px;
+        }
+
+        .zone {
+            background: #fff;
+            border: 3px dashed #bcccdc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            min-height: 130px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zone.drag-over {
+            transform: scale(1.02);
+            border-color: #0b69ff;
+            background-color: #e3f2fd;
+        }
+
+        .zone-icon {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        .zone h2 {
+            font-size: 1.1rem;
+            color: #334e68;
+            margin-bottom: 10px;
+        }
+
+        .dropped-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Chiếc ví */
+        .wallet-area {
+            background: #334e68;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+
+        .wallet-header {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .item {
+            background: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #102a43;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            /* Bắt buộc phải có để vuốt trên mobile */
+            touch-action: none; 
+        }
+
+        .item.dragging {
+            opacity: 0.5;
+            border-color: #0b69ff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .modal h2 {
+            color: #10b981;
+            margin-bottom: 10px;
+            font-size: 1.6rem;
+        }
+
+        .modal p {
+            color: #486581;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .btn-restart {
+            background: #0b69ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .shake {
+            animation: shakeError 0.4s;
+        }
+        @keyframes shakeError {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @media (min-width: 600px) {
+            .drop-zones { flex-direction: row; }
+        }
+    </style>
+    <!-- THÊM THƯ VIỆN HỖ TRỢ CẢM ỨNG CHO MOBILE -->
+    <script src="https://bernardo-castilho.github.io/DragDropTouch/DragDropTouch.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Dọn Dẹp Chiếc Ví</h1>
+        <p>Kéo các loại giấy tờ ở trong ví và thả vào đúng vị trí của chúng.</p>
+    </header>
+
+    <div class="game-container">
+        <div class="drop-zones">
+            <div class="zone" id="zone-vneid" data-accept="vneid">
+                <div class="zone-icon">📱</div>
+                <h2>Vào VNeID</h2>
+                <div class="dropped-items" id="dropped-vneid"></div>
+            </div>
+
+            <div class="zone" id="zone-trash" data-accept="trash">
+                <div class="zone-icon">🗑️</div>
+                <h2>Hủy Bỏ / Lưu Kho</h2>
+                <div class="dropped-items" id="dropped-trash"></div>
+            </div>
+        </div>
+
+        <div class="wallet-area">
+            <div class="wallet-header">💼 Ví của bạn</div>
+            <div class="items-container" id="wallet">
+                <div class="item" draggable="true" data-target="vneid">🪪 CCCD</div>
+                <div class="item" draggable="true" data-target="vneid">🚗 GPLX</div>
+                <div class="item" draggable="true" data-target="vneid">📜 Đăng ký xe</div>
+                <div class="item" draggable="true" data-target="vneid">🏥 BHYT</div>
+                <div class="item" draggable="true" data-target="trash">📘 Sổ Hộ Khẩu</div>
+                <div class="item" draggable="true" data-target="trash">📕 Sổ Tạm Trú</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <h2>🎉 Hoàn Thành!</h2>
+            <p>Ví của bạn đã được tối giản. Với VNeID mức độ 2, bạn đã có thể thay thế giấy tờ truyền thống khi tham gia giao thông và làm thủ tục hành chính.</p>
+            <button class="btn-restart" onclick="location.reload()">Làm lại</button>
+        </div>
+    </div>
+
+    <script>
+        const items = document.querySelectorAll('.item');
+        const zones = document.querySelectorAll('.zone');
+        let totalItems = items.length;
+        let sortedItems = 0;
+
+        items.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                item.classList.add('dragging');
+                // Hỗ trợ thêm cho một số trình duyệt mobile
+                e.dataTransfer.setData('text/plain', ''); 
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+        });
+
+        zones.forEach(zone => {
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('drag-over');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('drag-over');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('drag-over');
+                
+                const draggable = document.querySelector('.dragging');
+                if (!draggable) return;
+
+                const targetType = draggable.getAttribute('data-target');
+                const zoneType = zone.getAttribute('data-accept');
+
+                if (targetType === zoneType) {
+                    const droppedContainer = zone.querySelector('.dropped-items');
+                    droppedContainer.appendChild(draggable);
+                    draggable.setAttribute('draggable', 'false');
+                    draggable.style.pointerEvents = 'none'; // Khóa hẳn thẻ sau khi thả đúng
+                    
+                    sortedItems++;
+                    if (sortedItems === totalItems) {
+                        setTimeout(() => {
+                            document.getElementById('success-modal').style.display = 'flex';
+                        }, 300);
+                    }
+                } else {
+                    zone.classList.add('shake');
+                    setTimeout(() => {
+                        zone.classList.remove('shake');
+                    }, 400);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
