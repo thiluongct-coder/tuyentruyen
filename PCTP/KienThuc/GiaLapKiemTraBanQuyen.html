@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>SECURITY AUDIT: Kiểm tra rủi ro máy tính</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; padding: 40px; }
+        .container { max-width: 600px; margin: auto; border: 1px solid #00ff41; padding: 30px; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
+        h1 { color: #ff3e3e; text-transform: uppercase; letter-spacing: 2px; }
+        .step { margin: 20px 0; display: none; }
+        button { background: transparent; border: 1px solid #00ff41; color: #00ff41; padding: 10px 20px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #00ff41; color: #000; }
+        .log { color: #888; font-size: 0.9em; }
+    </style>
+</head>
+<body>
 
+<div class="container" id="app">
+    <h1>CẢNH BÁO: KIỂM TRA TÍNH TOÀN VẸN HỆ THỐNG</h1>
+    <div id="status" class="log">Đang khởi tạo module kiểm tra...</div>
+    
+    <div id="quiz">
+        <div class="step" id="s1" style="display:block;">
+            <p>1. Bạn đã từng tắt Windows Defender hoặc Antivirus để cài phần mềm?</p>
+            <button onclick="next(1, true)">Có</button> <button onclick="next(1, false)">Không</button>
+        </div>
+        <div class="step" id="s2">
+            <p>2. Bạn có sử dụng các tệp tin .exe lạ (Keygen/Patch) để bẻ khóa phần mềm?</p>
+            <button onclick="next(2, true)">Có</button> <button onclick="next(2, false)">Không</button>
+        </div>
+        <div class="step" id="s3">
+            <p>3. Bạn có lưu mật khẩu trình duyệt hoặc thông tin cá nhân trên máy tính này?</p>
+            <button onclick="next(3, true)">Có</button> <button onclick="next(3, false)">Không</button>
+        </div>
+    </div>
+
+    <div id="result" class="step">
+        <h2 id="verdict"></h2>
+        <p id="analysis"></p>
+        <button onclick="location.reload()">Kiểm tra lại</button>
+    </div>
+</div>
+
+<script>
+let score = 0;
+function next(step, isDangerous) {
+    if(isDangerous) score++;
+    document.getElementById('s'+step).style.display = 'none';
+    if(step < 3) {
+        document.getElementById('s'+(step+1)).style.display = 'block';
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('result').style.display = 'block';
+    
+    let verdict = document.getElementById('verdict');
+    let analysis = document.getElementById('analysis');
+    
+    if(score === 0) {
+        verdict.innerHTML = "HỆ THỐNG AN TOÀN";
+        analysis.innerHTML = "Chúc mừng. Máy tính của bạn không có dấu hiệu bị can thiệp bởi phần mềm độc hại.";
+    } else {
+        verdict.innerHTML = "PHÁT HIỆN LỖ HỔNG BẢO MẬT";
+        analysis.innerHTML = `Mức độ rủi ro: ${score * 33}%. <br><br> <strong>Cảnh báo:</strong> Các hành vi sử dụng phần mềm bẻ khóa đã tạo 'cửa sau' (backdoor) trong hệ thống của bạn. Dữ liệu cá nhân, tài khoản ngân hàng và mật khẩu trình duyệt đang nằm trong tầm ngắm của hacker. <br><br> Hãy chuyển sang phần mềm mã nguồn mở ngay lập tức.`;
+        document.body.style.background = "#2a0000"; // Chuyển màu đỏ cảnh báo
+    }
+}
+</script>
+
+</body>
+</html>
