@@ -3,19 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <title>Phòng chống tội phạm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #ffffff 100%); min-height: 100vh; padding: 50px 8%; }
-        .back-btn { display: inline-block; margin-bottom: 20px; color: #2563eb; font-weight: 600; text-decoration: none; }
-        .box { background: #fef3c7; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { margin-bottom: 20px; color: #1e293b; }
+        
+        /* HIỆU ỨNG NỀN - KHÔNG GIAN CÔNG NGHỆ CAO */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0b1121;
+            /* Lưới công nghệ tự động trôi */
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridSlide 20s linear infinite;
+            min-height: 100vh; 
+            padding: 50px 8%; 
+            color: #e2e8f0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gridSlide {
+            0% { background-position: 0px 0px; }
+            100% { background-position: 40px 40px; }
+        }
+
+        /* 2 KHỐI SÁNG NĂNG LƯỢNG LƠ LỬNG PHÍA SAU */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 40vw; height: 40vw;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: floatOrb 10s ease-in-out infinite alternate;
+        }
+        body::before {
+            top: -10%; left: -10%;
+            background: rgba(0, 240, 255, 0.15); /* Sáng Xanh Cyan */
+        }
+        body::after {
+            bottom: -10%; right: -10%;
+            background: rgba(139, 92, 246, 0.15); /* Sáng Tím Tương lai */
+            animation-delay: -5s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        /* NÚT QUAY LẠI - Giao diện Điều khiển */
+        .back-btn { 
+            display: inline-flex; 
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px; 
+            color: #00f0ff; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            text-decoration: none; 
+            background: rgba(0, 240, 255, 0.1);
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);
+        }
+        .back-btn:hover { 
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: translateX(-5px); 
+            text-shadow: 0 0 8px #00f0ff;
+        }
+
+        /* BẢNG ĐIỀU KHIỂN CHÍNH (Glassmorphism Dashboard) */
+        .box { 
+            background: linear-gradient(135deg, rgba(16, 24, 45, 0.75) 0%, rgba(11, 17, 33, 0.85) 100%); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 45px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 2px rgba(0, 240, 255, 0.4); 
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            animation: bootUp 0.8s ease-out forwards;
+        }
+
+        /* TIA QUÉT (SCANNER LINE) TRÊN VIỀN BẢNG ĐIỀU KHIỂN */
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 2px;
+            background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+            animation: scanline 4s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        @keyframes bootUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { 
+            margin-bottom: 10px; 
+            color: #ffffff; 
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            display: flex;
+            align-items: center;
+        }
+        .description { 
+            color: #94a3b8; 
+            margin-bottom: 30px; 
+            font-size: 1.05rem; 
+        }
+
+        /* TIÊU ĐỀ PHÂN KHU */
+        .section-title {
+            font-size: 1.15rem;
+            color: #38bdf8;
+            margin: 40px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* ĐỊNH DẠNG CHUNG CHO CÁC THẺ (Cyber Cards) */
+        .post-tag, .interactive-tag {
+            display: block;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 22px;
+            border-radius: 12px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* HIỆU ỨNG VỆT SÁNG LƯỚT QUA KHI HOVER (Sweep Light) */
+        .post-tag::after, .interactive-tag::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+
+        /* THẺ BÀI VIẾT PHÁP LUẬT (Tông Xanh Hologram) */
+        .post-tag { border-left: 4px solid #3b82f6; }
+        .post-title { font-size: 1.15rem; font-weight: 600; color: #60a5fa; margin-bottom: 6px; }
+        .post-summary { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+        
+        .post-tag:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateX(6px); 
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+        .post-tag:hover::after { left: 200%; }
+
+        /* THẺ TRÒ CHƠI TƯƠNG TÁC (Tông Vàng/Cam Năng Lượng) */
+        .interactive-tag { border-left: 4px solid #f59e0b; }
+        .interactive-title { font-size: 1.15rem; font-weight: 600; color: #fbbf24; margin-bottom: 6px; }
+        .interactive-summary { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+        
+        .interactive-tag:hover {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.4);
+            transform: translateX(6px); 
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+        }
+        .interactive-tag:hover::after { left: 200%; }
+
+        /* TEM CẢNH BÁO / NHÃN HOT (Neon Red Alert) */
+        .badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+            animation: cyberPulse 2s infinite;
+        }
+
+        @keyframes cyberPulse {
+            0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); transform: scale(1); }
+            50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); border-color: #ef4444; transform: scale(1.05); }
+            100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <a href="https://thiluongct-coder.github.io/tuyentruyen/index.html" class="back-btn">← Quay lại trang chủ</a>
+    
     <div class="box">
-        <h1>🛡️ Phòng chống tội phạm</h1>
-        <p>Nội dung chi tiết về cách nhận diện thủ đoạn AI và các hình thức lừa đảo công nghệ.</p>
+        <h1>🛡️ Phòng Chống Tội Phạm</h1>
+        <p class="description">Hệ thống thông tin cảnh báo các thủ đoạn tội phạm mới và trang bị kỹ năng số giúp bảo vệ an toàn cho bản thân và gia đình.</p>
+        
+        <!-- ================= KHU VỰC 1: CẨM NANG & KIẾN THỨC ================= -->
+        <h2 class="section-title">📖 Cẩm nang & Kiến thức an ninh</h2>
+        <div class="link-list">
+            <a href="PCTP/ThuDoanCongNgheCao.html" class="post-tag">
+                <div class="post-title">1. Nhận diện lừa đảo công nghệ cao</div>
+                <div class="post-summary">Cập nhật các thủ đoạn giả danh công an, lừa đảo việc làm online, cài mã độc và chiếm đoạt tài khoản mạng xã hội.</div>
+            </a>
+            <a href="PCTP/PhongChongTromCap.html" class="post-tag">
+                <div class="post-title">2. Kỹ năng phòng chống tội phạm đường phố</div>
+                <div class="post-summary">Hướng dẫn cách bảo vệ tài sản, phòng ngừa trộm cắp, cướp giật khi tham gia giao thông hoặc ở nơi công cộng.</div>
+            </a>
+            <a href="PCTP/ToGiacToiPham.html" class="post-tag">
+                <div class="post-title">3. Hướng dẫn tố giác tội phạm trực tuyến</div>
+                <div class="post-summary">Quy trình, thủ tục và các kênh liên hệ an toàn (qua ứng dụng VNeID, hotline) để báo tin tội phạm cho cơ quan chức năng.</div>
+            </a>
+            <a href="PCTP/LuatHinhSu.html" class="post-tag">
+                <div class="post-title">4. Sổ tay pháp luật Hình sự cơ bản</div>
+                <div class="post-summary">Tìm hiểu các quy định của pháp luật về quyền tự vệ chính đáng và mức xử phạt đối với các hành vi vi phạm phổ biến.</div>
+            </a>
+        </div>
+
+        <!-- ================= KHU VỰC 2: TRÒ CHƠI & HUẤN LUYỆN ================= -->
+        <h2 class="section-title">🎯 Trải nghiệm & Huấn luyện kỹ năng</h2>
+        <div class="link-list">
+            
+            <a href="GamePCTP/NhanDienDeepfake.html" class="interactive-tag">
+                <span class="badge">HOT</span>
+                <div class="interactive-title">🤖 Mô phỏng: Nhận diện Deepfake</div>
+                <div class="interactive-summary">Luyện tập kỹ năng phân biệt video và cuộc gọi giả mạo do Trí tuệ nhân tạo (AI) tạo ra để lừa chuyển tiền.</div>
+            </a>
+
+            <a href="GamePCTP/ThamTuMang.html" class="interactive-tag">
+                <span class="badge">MỚI</span>
+                <div class="interactive-title">🕵️ Thử thách: Thám tử mạng</div>
+                <div class="interactive-summary">Đóng vai điều tra viên an ninh mạng, tìm ra các đường link độc hại và tin nhắn lừa đảo đang ẩn giấu trong điện thoại.</div>
+            </a>
+
+            <a href="GamePCTP/XuLyTinhHuong.html" class="interactive-tag">
+                <div class="interactive-title">🚨 Xử lý tình huống khẩn cấp</div>
+                <div class="interactive-summary">Trò chơi tương tác theo cốt truyện: Bạn sẽ xử trí thế nào khi phát hiện có kẻ gian đột nhập hoặc bị theo dõi?</div>
+            </a>
+
+            <a href="GamePCTP/TracNghiemAnToan.html" class="interactive-tag">
+                <div class="interactive-title">📝 Trắc nghiệm: Cảnh giác an ninh</div>
+                <div class="interactive-summary">Bài kiểm tra phản xạ nhanh với 15 câu hỏi tình huống giúp đánh giá mức độ nhạy bén của bạn trước các rủi ro xã hội.</div>
+            </a>
+
+        </div>
     </div>
 </body>
 </html>
