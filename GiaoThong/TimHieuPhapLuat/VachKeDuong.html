@@ -1,1 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sa Hình Tương Tác Vạch Kẻ Đường - Nghị Định 168/2024</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Nền đường nhựa */
+        .asphalt {
+            background-color: #1e293b;
+            background-image: radial-gradient(#334155 1px, transparent 0);
+            background-size: 8px 8px;
+        }
 
+        /* ---------------------------------------------------------------- */
+        /* HỆ THỐNG CSS ANIMATION GIẢ LẬP HÀNH VI VI PHẠM THỰC TẾ */
+        
+        /* Xe A: Quay đầu đè vạch liền 1.2 */
+        @keyframes uTurnViolation {
+            0% { transform: translateY(0) rotate(0deg); }
+            30% { transform: translateY(-40px) rotate(0deg); }
+            50% { transform: translateY(-50px) translateX(-15px) rotate(-90deg); }
+            80% { transform: translateY(-20px) translateX(-35px) rotate(-180deg); }
+            100% { transform: translateY(20px) translateX(-35px) rotate(-180deg); }
+        }
+        .anim-car-a {
+            animation: uTurnViolation 3s infinite ease-in-out;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px #ef4444;
+        }
+
+        /* Xe B: Đi thẳng trên làn bắt buộc rẽ trái */
+        @keyframes straightViolation {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-160px); }
+        }
+        .anim-car-b {
+            animation: straightViolation 2.5s infinite linear;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px #ef4444;
+        }
+
+        /* Xe C: Đè/Dừng trên vạch xương cá 4.1 */
+        @keyframes islandViolation {
+            0% { transform: translateY(0) rotate(0deg); }
+            40% { transform: translateY(-50px) rotate(15deg); }
+            70% { transform: translateY(-80px) translateX(25px) rotate(25deg); }
+            100% { transform: translateY(-80px) translateX(25px) rotate(25deg); } /* Dừng chết trên vạch */
+        }
+        .anim-car-c {
+            animation: islandViolation 3s infinite ease-out;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px #ef4444;
+        }
+        /* ---------------------------------------------------------------- */
+
+        /* Đèn cảnh báo nhấp nháy trên bảng chữ */
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 15px 5px rgba(239, 68, 68, 0.4); }
+        }
+        .violating-panel {
+            animation: pulse-red 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-black text-amber-400 uppercase tracking-wide">
+                    <i class="fa-solid fa-road-barrier text-red-500 mr-2"></i>Mô Phỏng Sa Hình Tương Tác Vạch Kẻ Đường
+                </h1>
+                <p class="text-xs text-slate-400 mt-0.5">Ứng dụng trực quan hóa hành vi vi phạm giao thông theo Nghị định 168/2024/NĐ-CP</p>
+            </div>
+            
+            <div class="bg-slate-950 p-1 rounded-xl border border-slate-700 flex shadow-inner">
+                <button onclick="selectVehicle('xe_may')" id="tab-xm" class="px-5 py-2 text-xs font-black rounded-lg transition bg-amber-500 text-slate-950 cursor-pointer shadow">
+                    <i class="fa-solid fa-motorcycle mr-1.5 text-sm"></i> XE MÁY
+                </button>
+                <button onclick="selectVehicle('o_to')" id="tab-ot" class="px-5 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white cursor-pointer">
+                    <i class="fa-solid fa-car mr-1.5 text-sm"></i> Ô TÔ
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <div class="lg:col-span-6 bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-xl flex flex-col justify-between">
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-l-2 border-amber-500 pl-2">
+                Bấm nút để kích hoạt tình huống chuyển động vi phạm:
+            </div>
+
+            <div class="relative w-full h-[500px] asphalt rounded-xl border-4 border-slate-600 overflow-hidden shadow-2xl mx-auto">
+                
+                <div class="absolute left-1/2 top-0 bottom-0 w-2 bg-yellow-400 transform -translate-x-1/2 z-10 shadow-[0_0_4px_rgba(234,179,8,0.5)]"></div>
+                
+                <div class="absolute left-[25%] top-0 bottom-0 w-0.5 border-l-2 border-dashed border-white/40 z-10"></div>
+
+                <div class="absolute right-0 bottom-0 w-[150px] h-[160px] border-l-4 border-t-4 border-white z-10">
+                    <div class="w-full h-full opacity-60" style="background: repeating-linear-gradient(135deg, #fff, #fff 4px, transparent 4px, transparent 18px);"></div>
+                </div>
+
+                <div class="absolute left-[10%] top-[60%] text-white/40 text-2xl font-black z-10 pointer-events-none transform -rotate-90">
+                    <i class="fa-solid fa-arrow-turn-up"></i>
+                </div>
+
+                <div class="absolute left-2 top-[45%] z-30 bg-blue-600 border-2 border-white p-1 rounded shadow-md text-white text-center font-bold text-[9px] w-9">
+                    <i class="fa-solid fa-arrow-left block border-b border-white/50 pb-0.5"></i>
+                    <i class="fa-solid fa-arrow-up block pt-0.5 text-slate-400"></i>
+                    <span class="block text-[6px] leading-none mt-0.5 text-yellow-300">R.411</span>
+                </div>
+
+                <div id="car-a" class="absolute left-[52%] bottom-[160px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all">
+                    <span class="vehicle-icon"><i class="fa-solid fa-motorcycle text-base text-blue-600"></i></span>
+                    <span class="text-[9px] mt-0.5">Xe A</span>
+                </div>
+
+                <div id="car-b" class="absolute left-[8%] bottom-[40px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all">
+                    <span class="vehicle-icon"><i class="fa-solid fa-motorcycle text-base text-emerald-600"></i></span>
+                    <span class="text-[9px] mt-0.5">Xe B</span>
+                </div>
+
+                <div id="car-c" class="absolute right-[160px] bottom-[20px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all">
+                    <span class="vehicle-icon"><i class="fa-solid fa-motorcycle text-base text-purple-600"></i></span>
+                    <span class="text-[9px] mt-0.5">Xe C</span>
+                </div>
+                <div class="absolute top-2 right-2 bg-slate-900/90 border border-slate-700 p-2 rounded text-[10px] space-y-1 z-30 pointer-events-none">
+                    <div class="flex items-center gap-1.5"><div class="w-4 h-1 bg-yellow-400"></div> Vạch tim đường 1.2 (Cấm đè/Cấm quay đầu)</div>
+                    <div class="flex items-center gap-1.5"><div class="w-4 h-3 border border-white bg-slate-700/50"></div> Vạch xương cá 4.1 (Cấm dừng đỗ/đi vào)</div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-square text-blue-500"></i> Biển báo phân làn hướng đi bắt buộc</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mt-3">
+                <button onclick="playSituation('loi_de_vach_lien')" class="bg-slate-700 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition cursor-pointer text-center shadow">
+                    <i class="fa-solid fa-rotate-left mr-1 text-amber-400"></i> Xem Xe A vi phạm
+                </button>
+                <button onclick="playSituation('loi_sai_lan_huong')" class="bg-slate-700 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition cursor-pointer text-center shadow">
+                    <i class="fa-solid fa-arrow-up-long mr-1 text-emerald-400"></i> Xem Xe B vi phạm
+                </button>
+                <button onclick="playSituation('loi_xong_xuong_ca')" class="bg-slate-700 hover:bg-amber-600 text-white font-bold p-2 rounded-xl text-xs transition cursor-pointer text-center shadow">
+                    <i class="fa-solid fa-triangle-exclamation mr-1 text-purple-400"></i> Xem Xe C vi phạm
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-6 flex flex-col gap-4">
+            
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl flex-grow flex flex-col justify-between">
+                <div>
+                    <h2 class="text-sm font-black text-amber-400 border-b border-slate-700 pb-2 mb-3 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-gavel mr-2 text-red-500"></i>Hồ sơ xử lý vi phạm giao thông
+                    </h2>
+
+                    <div id="panel-blank" class="text-center py-20 text-slate-500 space-y-2">
+                        <i class="fa-solid fa-play text-4xl block text-slate-600 animate-bounce"></i>
+                        <p class="text-xs font-semibold">Bấm vào một trong các nút xem xe vi phạm ở dưới sa hình.</p>
+                    </div>
+
+                    <div id="panel-data" class="hidden space-y-3.5">
+                        <div class="flex justify-between items-center">
+                            <span id="res-vehicle-badge" class="bg-blue-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded">XE MÁY</span>
+                            <span class="bg-rose-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded violating-panel"><i class="fa-solid fa-triangle-exclamation mr-1"></i>ĐANG HÀNH VI VI PHẠM</span>
+                        </div>
+
+                        <div>
+                            <span class="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Mô tả hành vi sa hình:</span>
+                            <p id="res-title" class="text-xs font-bold text-amber-300 mt-0.5 leading-relaxed"></p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-red-950/40 border-l-4 border-red-500 p-2.5 rounded-r-xl">
+                                <span class="text-[9px] uppercase font-bold text-red-400 tracking-wider block">Mức phạt tiền:</span>
+                                <div id="res-money" class="text-xl font-black text-red-400">0 VNĐ</div>
+                                <p id="res-range" class="text-[10px] text-slate-400 italic mt-0.5"></p>
+                            </div>
+
+                            <div class="bg-amber-950/40 border-l-4 border-amber-500 p-2.5 rounded-r-xl">
+                                <span class="text-[9px] uppercase font-bold text-amber-400 tracking-wider block">Hình phạt bổ sung:</span>
+                                <p id="res-extra" class="text-[11px] text-slate-200 font-medium mt-0.5 leading-tight"></p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[10px] uppercase font-black text-blue-400 tracking-wider block mb-1.5"><i class="fa-solid fa-eye mr-1"></i>Hình ảnh đối chiếu thực tế ngoài đường:</span>
+                            
+                            <div id="real-world-box" class="bg-slate-950 p-2.5 rounded border border-slate-800 text-center text-xs min-h-[60px] flex items-center justify-center font-medium text-slate-300">
+                                </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] text-slate-400 leading-normal">
+                            <strong class="text-slate-300 block text-[10px] uppercase"><i class="fa-solid fa-scale-balanced mr-1 text-slate-400"></i>Căn cứ pháp lý áp dụng:</strong>
+                            <p id="res-law" class="mt-0.5"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-950 text-slate-500 text-[10px] py-2 text-center border-t border-slate-800">
+        Phần mềm tuyên truyền luật An toàn giao thông đường bộ • Dữ liệu chuẩn xác theo Nghị định 168/2024/NĐ-CP.
+    </footer>
+
+    <script>
+        // CƠ SỞ DỮ LIỆU ĐẦY ĐỦ VÀ CHUẨN XÁC THEO NGHỊ ĐỊNH 168
+        const DATA_MUC_PHAT = {
+            "xe_may": {
+                "loi_de_vach_lien": {
+                    "title": "Xe A không chấp hành hiệu lệnh, chỉ dẫn của vạch kẻ đường. Cố tình điều khiển xe máy đè qua vạch 1.2 màu vàng nét liền để thực hiện quay đầu xe trái quy định.",
+                    "min": 100000, "max": 200000,
+                    "extra": "Không tước bằng lái xe (Trừ khi hành vi đè vạch này trực tiếp va chạm gây tai nạn giao thông thì bị tước bằng từ 02 đến 04 tháng).",
+                    "law": "Điểm a Khoản 1 Điều 6, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-amber-500'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Vạch vàng nét liền xuất hiện ở đoạn đường hai chiều không có dải phân cách cứng. Thấy vạch này tuyệt đối không được lấn làn, không được đè bánh xe lên vạch kể cả khi quay đầu xe.</div>"
+                },
+                "loi_sai_lan_huong": {
+                    "title": "Xe B lỗi không chấp hành hiệu lệnh, chỉ dẫn của biển báo hiệu và vạch kẻ đường. Đi thẳng ở làn đường có biển báo R.411 và vạch mũi tên bắt buộc rẽ trái.",
+                    "min": 100000, "max": 200000,
+                    "extra": "Đây là lỗi 'Không chấp hành vạch kẻ đường', không phải lỗi 'Đi sai làn đường'. Người dân không bị tước giấy phép lái xe.",
+                    "law": "Điểm a Khoản 1 Điều 6, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-emerald-400'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Tại các giao lộ lớn có phân làn bằng mũi tên sơn màu trắng dưới đường kèm biển treo trên cao, đi hướng nào phải đứng đúng làn đó từ trước vạch dừng xe.</div>"
+                },
+                "loi_xong_xuong_ca": {
+                    "title": "Xe C vi phạm điều khiển phương tiện đi vào, đè lên vùng vạch kênh hóa dòng xe (Vạch xương cá 4.1). Đây là vùng vạch cấm phương tiện đi vào hoặc dừng đỗ.",
+                    "min": 100000, "max": 200000,
+                    "extra": "Phạt tiền mức trung bình áp dụng tại chỗ là 150.000đ. Không tước giấy phép lái xe.",
+                    "law": "Điểm a Khoản 1 Điều 6, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-purple-400'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Vạch xương cá thường bố trí ở các lối rẽ tách làn trên cầu hoặc đường quốc lộ. Người tham gia giao thông tuyệt đối không được chạy xe cắt qua hoặc chọn vùng này làm nơi đỗ xe hóng mát.</div>"
+                }
+            },
+            "o_to": {
+                "loi_de_vach_lien": {
+                    "title": "Xe A (Ô tô) không chấp hành hiệu lệnh, chỉ dẫn của vạch kẻ đường. Quay đầu xe đè lên vạch tim đường 1.2 màu vàng nét liền gây nguy hiểm cho xe ngược chiều.",
+                    "min": 300000, "max": 400000,
+                    "extra": "Phạt tiền trung bình 350.000đ. Hệ thống camera phạt nguội quét rất gắt lỗi đè vạch liền này.",
+                    "law": "Điểm a Khoản 1 Điều 5, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-amber-500'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Đối với ô tô, hành vi đè vạch liền để quay đầu ở các đoạn đường hẹp rất dễ gây ùn tắc giao thông nghiêm trọng hoặc tai nạn trực diện đối đầu.</div>"
+                },
+                "loi_sai_lan_huong": {
+                    "title": "Xe B (Ô tô) không chấp hành chỉ dẫn của vạch kẻ đường và biển hiệu phân làn tại ngã tư. Đi thẳng khi đang dừng ở làn bắt buộc rẽ rẽ trái.",
+                    "min": 300000, "max": 400000,
+                    "extra": "Mức phạt tiền trung bình là 350.000đ. Lỗi này rất nhiều người bị nhầm thành lỗi đi sai làn đường phạt hàng triệu đồng.",
+                    "law": "Điểm a Khoản 1 Điều 5, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-emerald-400'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Nếu lỡ đi nhầm vào làn này khi đèn xanh, tài xế ô tô nên tuân thủ rẽ trái theo mũi tên, sau đó tìm nơi quay đầu lại để tránh bị phạt camera nguội.",
+                },
+                "loi_xong_xuong_ca": {
+                    "title": "Xe Bố trí đè hoặc dừng đỗ ô tô trái phép trên vạch kênh hóa dòng xe (Vạch xương cá 4.1) gây cản trở các phương tiện rẽ hướng.",
+                    "min": 300000, "max": 400000,
+                    "extra": "Nếu hành vi dừng đỗ đè vạch xương cá dẫn đến tai nạn giao thông nghiêm trọng, tài xế sẽ bị tước quyền sử dụng bằng lái từ 02 đến 04 tháng.",
+                    "law": "Điểm a Khoản 1 Điều 5, Nghị định số 168/2024/NĐ-CP.",
+                    "realImg": "<div class='text-left w-full text-purple-400'><i class='fa-solid fa-camera mr-1 text-slate-400'></i> <strong>Lưu ý thực tế:</strong> Rất nhiều lái xe ô tô có thói quen dừng xe vào vùng vạch xương cá ở ngã ba ngã tư để chờ xem bản đồ hoặc bấm điện thoại, đây là hành vi sai luật rõ ràng.</div>"
+                }
+            }
+        };
+
+        let currentVehicle = "xe_may";
+
+        // Hàm thay đổi loại xe (Ô tô / Xe máy)
+        function selectVehicle(type) {
+            currentVehicle = type;
+            const tabXm = document.getElementById('tab-xm');
+            const tabOt = document.getElementById('tab-ot');
+            
+            // Đổi màu tab
+            tabXm.className = "px-5 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+            tabOt.className = "px-5 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+
+            const icons = document.querySelectorAll('.vehicle-icon');
+            if (type === 'xe_may') {
+                tabXm.classList.add('bg-amber-500', 'text-slate-950', 'shadow');
+                icons[0].innerHTML = `<i class="fa-solid fa-motorcycle text-base text-blue-600"></i>`;
+                icons[1].innerHTML = `<i class="fa-solid fa-motorcycle text-base text-emerald-600"></i>`;
+                icons[2].innerHTML = `<i class="fa-solid fa-motorcycle text-base text-purple-600"></i>`;
+            } else {
+                tabOt.classList.add('bg-amber-500', 'text-slate-950', 'shadow');
+                icons[0].innerHTML = `<i class="fa-solid fa-car text-base text-blue-600"></i>`;
+                icons[1].innerHTML = `<i class="fa-solid fa-car text-base text-emerald-600"></i>`;
+                icons[2].innerHTML = `<i class="fa-solid fa-car text-base text-purple-600"></i>`;
+            }
+
+            // Reset trạng thái bảng thông tin về ban đầu
+            resetAllAnimations();
+            document.getElementById('panel-blank').classList.remove('hidden');
+            document.getElementById('panel-data').classList.add('hidden');
+        }
+
+        // Tạo tiếng bíp tít tít bằng mã Audio hệ thống
+        function playAlertSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'square'; // Âm thanh sắc nét báo hiệu lỗi
+                osc.frequency.setValueAtTime(600, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+                osc.stop(ctx.currentTime + 0.2);
+            } catch(e) {}
+        }
+
+        // Kích hoạt chạy hoạt cảnh chuyển động xe vi phạm
+        function playSituation(loiKey) {
+            playAlertSound();
+            resetAllAnimations();
+
+            // Hiển thị khung dữ liệu phạt
+            document.getElementById('panel-blank').classList.add('hidden');
+            document.getElementById('panel-data').classList.remove('hidden');
+
+            // Đổ dữ liệu từ mảng đối tượng ra giao diện
+            const data = DATA_MUC_PHAT[currentVehicle][loiKey];
+            const avg = (data.min + data.max) / 2;
+
+            document.getElementById('res-vehicle-badge').innerText = currentVehicle === 'xe_may' ? 'ĐỐI TƯỢNG: XE MÁY' : 'ĐỐI TƯỢNG: Ô TÔ';
+            document.getElementById('res-title').innerText = data.title;
+            document.getElementById('res-money').innerText = avg.toLocaleString('vi-VN') + " VNĐ";
+            document.getElementById('res-range').innerText = `(Khung quy định từ ${data.min.toLocaleString('vi-VN')}đ đến ${data.max.toLocaleString('vi-VN')}đ)`;
+            document.getElementById('res-extra').innerText = data.extra;
+            document.getElementById('res-law').innerText = data.law;
+            document.getElementById('real-world-box').innerHTML = data.realImg;
+
+            // Kích hoạt class CSS Animation tương ứng cho từng xe
+            if (loiKey === 'loi_de_vach_lien') {
+                document.getElementById('car-a').classList.add('anim-car-a');
+            } else if (loiKey === 'loi_sai_lan_huong') {
+                document.getElementById('car-b').classList.add('anim-car-b');
+            } else if (loiKey === 'loi_xong_xuong_ca') {
+                document.getElementById('car-c').classList.add('anim-car-c');
+            }
+        }
+
+        // Reset xóa bỏ class chuyển động để chạy lại từ đầu
+        function resetAllAnimations() {
+            document.getElementById('car-a').className = "absolute left-[52%] bottom-[160px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all";
+            document.getElementById('car-b').className = "absolute left-[8%] bottom-[40px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all";
+            document.getElementById('car-c').className = "absolute right-[160px] bottom-[20px] z-20 bg-slate-100 text-slate-900 px-2 py-2.5 rounded-md font-black text-xs border-2 border-slate-400 flex flex-col items-center shadow-lg transition-all";
+        }
+    </script>
+</body>
+</html>
