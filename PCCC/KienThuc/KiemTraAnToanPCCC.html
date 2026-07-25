@@ -1,1 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Tự kiểm tra An toàn PCCC - CATP Cần Thơ</title>
+    <style>
+        :root {
+            --primary: #d32f2f;
+            --secondary: #2196f3;
+            --success: #2e7d32;
+            --warning: #f57f17;
+            --danger: #c62828;
+            --dark: #212121;
+            --gray: #f5f5f5;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #eef2f5; margin: 0; padding: 15px; color: var(--dark); }
+        .container { max-width: 700px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 8px solid var(--primary); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px dashed #e0e0e0; padding-bottom: 15px; }
+        .header h2 { color: var(--primary); margin: 0 0 5px 0; font-size: 1.4rem; text-transform: uppercase; }
+        .header p { margin: 0; color: #666; font-size: 0.95rem; }
+        
+        .progress-container { margin-bottom: 30px; }
+        .progress-bar { height: 6px; background-color: #e0e0e0; border-radius: 3px; overflow: hidden; }
+        .progress { height: 100%; background-color: var(--primary); width: 16.6%; transition: width 0.3s ease; }
+        .step-indicator { text-align: right; font-size: 0.85rem; color: #777; margin-top: 5px; font-weight: bold; }
+        
+        .step { display: none; }
+        .step.active { display: block; animation: slideIn 0.3s ease; }
+        .question { font-size: 1.15rem; font-weight: 600; margin-bottom: 20px; line-height: 1.5; color: #000; }
+        
+        .btn-option { display: block; width: 100%; padding: 15px 20px; margin: 12px 0; background-color: #fff; border: 2px solid #e0e0e0; border-radius: 10px; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; line-height: 1.4; }
+        .btn-option:hover { border-color: var(--primary); background-color: #fdf2f2; color: var(--primary); }
+        
+        .result-box { display: none; animation: fadeIn 0.5s ease; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .score-num { font-size: 2rem; }
+        .score-label { font-size: 0.8rem; text-transform: uppercase; }
+        
+        .report-section { margin-top: 25px; }
+        .report-title { font-weight: bold; font-size: 1.1rem; border-left: 4px solid var(--primary); padding-left: 10px; margin-bottom: 15px; }
+        .violation-list { list-style: none; padding: 0; }
+        .violation-item { background: #fff5f5; border: 1px solid #ffcdd2; padding: 15px; border-radius: 8px; margin-bottom: 12px; font-size: 0.95rem; }
+        .violation-item strong { color: var(--danger); }
+        .legal-ref { font-size: 0.85rem; color: #666; font-style: italic; margin-top: 5px; display: block; }
+        
+        .btn-action { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; width: 100%; transition: background 0.2s; }
+        .btn-action:hover { background: #b71c1c; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
 
+<div class="container">
+    <div class="header">
+        <h2>Cẩm nang Tự kiểm tra An toàn PCCC</h2>
+        <p>Áp dụng cho nhà ở kết hợp sản xuất, kinh doanh, kiot lồng chợ</p>
+    </div>
+    
+    <div id="quiz-flow">
+        <div class="progress-container">
+            <div class="progress-bar"><div id="progress" class="progress"></div></div>
+            <div id="step-text" class="step-indicator">Bước 1/6</div>
+        </div>
+
+        <div id="step1" class="step active">
+            <p class="question">Câu 1: Tổng diện tích sàn sử dụng để kinh doanh/sản xuất của hộ là bao nhiêu?</p>
+            <button class="btn-option" onclick="selectOption(1, 0, '', 'Sơ sở thuộc diện UBND cấp xã quản lý (Phụ lục IV Nghị định 136/2020/NĐ-CP).')">A. Dưới 100 m²</button>
+            <button class="btn-option" onclick="selectOption(1, 0, '', 'Cơ sở thuộc danh mục do cơ quan Công an quản lý (Nghị định 136/2020/NĐ-CP).')">B. Từ 100 m² đến dưới 300 m²</button>
+            <button class="btn-option" onclick="selectOption(1, 0, '', 'Cơ sở có nguy cơ cháy nổ cao, thuộc diện cơ quan Công an quản lý trực tiếp và kiểm tra định kỳ nghiêm ngặt.')">C. Từ 300 m² trở lên hoặc nhà cao từ 5 tầng trở lên</button>
+        </div>
+
+        <div id="step2" class="step">
+            <p class="question">Câu 2: Cơ sở của bạn có lối thoát nạn khẩn cấp thứ hai ngoài cửa chính không?</p>
+            <button class="btn-option" onclick="selectOption(2, 20, '', '')">A. Có (Cửa sau ra hẻm, lối thoát ban công thoáng, lối lên mái qua nhà bên cạnh...)</button>
+            <button class="btn-option" onclick="selectOption(2, 0, 'Thiếu lối thoát nạn thứ 2', 'Quy chuẩn QCVN 06:2022/BXD bắt buộc nhà ở kết hợp kinh doanh phải có lối thoát nạn dự phòng. Việc chỉ có 1 lối ra độc nhất khiến nguy cơ ngạt khói tăng 90% khi xảy ra hỏa hoạn.')">B. Không (Nhà ống liền kề bị bít kín, ban công hàn chuồng cọp cố định...)</button>
+        </div>
+
+        <div id="step3" class="step">
+            <p class="question">Câu 3: Lối ra vào chính (nơi để hàng hóa/xe máy) đang dùng loại cửa gì?</p>
+            <button class="btn-option" onclick="selectOption(3, 20, '', '')">A. Cửa cánh mở ra ngoài hoặc cửa kéo lùa tay dọn dẹp trống trải</button>
+            <button class="btn-option" onclick="selectOption(3, 0, 'Nguy cơ kẹt cửa cuốn khi mất điện', 'Theo khuyến cáo của Bộ Công an, hộ kinh doanh dùng cửa cuốn phải có bộ lưu điện (UPS) hoạt động tốt và có xích kéo tay dự phòng mở được từ bên trong để tránh bị kẹt lại khi có cháy nổ làm ngắt điện.')">B. Cửa cuốn điện (Không có lưu điện hoặc nút bấm mở xích tay từ bên trong)</button>
+        </div>
+
+        <div id="step4" class="step">
+            <p class="question">Câu 4: Trạng thái thiết kế hệ thống điện tại nơi chứa hàng hóa kinh doanh?</p>
+            <button class="btn-option" onclick="selectOption(4, 20, '', '')">A. Dây điện đi trong ống ghen cách điện, có Aptomat bọc kín riêng biệt</button>
+            <button class="btn-option" onclick="selectOption(4, 0, 'Hệ thống điện không an toàn', 'Điều 5 Luật PCCC quy định nghiêm cấm việc câu mắc dây điện tùy tiện. Dây điện trần trần đè lên hàng hóa, không có thiết bị bảo vệ (CB/Aptomat) chống quá tải là nguyên nhân của hơn 70% số vụ cháy.')">B. Dây điện trần câu mắc chằng chịt, đè sát hàng hóa, chưa có Aptomat chống quá tải</button>
+        </div>
+
+        <div id="step5" class="step">
+            <p class="question">Câu 5: Gia đình có thắp hương thờ cúng hoặc đun nấu tại khu vực chứa hàng không?</p>
+            <button class="btn-option" onclick="selectOption(5, 20, '', '')">A. Không (Tách biệt hoàn toàn nơi thờ cúng, nấu ăn với nơi để hàng)</button>
+            <button class="btn-option" onclick="selectOption(5, 0, 'Vi phạm khoảng cách an toàn nguồn lửa', 'Nghị định 136/2020/NĐ-CP quy định phải bảo đảm khoảng cách an toàn giữa nguồn lửa, nguồn nhiệt với các chất dễ cháy. Thắp hương hoặc nấu ăn sát vách kiot chứa vải, giấy, nhựa cực kỳ nguy hiểm.')">B. Có (Thắp hương thần tài hoặc đun nấu ngay sát khu vực để hàng hóa)</button>
+        </div>
+
+        <div id="step6" class="step">
+            <p class="question">Câu 6: Tình trạng trang bị bình chữa cháy xách tay của cơ sở?</p>
+            <button class="btn-option" onclick="selectOption(6, 20, '', '')">A. Đã có tối thiểu 1-2 bình (Kim đồng hồ vạch xanh, biết cách giật chốt sử dụng)</button>
+            <button class="btn-option" onclick="selectOption(6, 0, 'Vi phạm trang bị phương tiện PCCC', 'Theo Thông tư 150/2020/TT-BCA, hộ kinh doanh bắt buộc phải trang bị bình chữa cháy xách tay đạt chuẩn. Thiếu thiết bị này đồng nghĩa với việc mất đi cơ hội dập tắt đám cháy trong 3 phút vàng đầu tiên.')">B. Chưa có bình chữa cháy (Hoặc có nhưng đã hỏng, quá hạn, không biết xài)</button>
+        </div>
+    </div>
+
+    <div id="result-area" class="result-box">
+        <div id="score-indicator" class="score-circle">
+            <span id="final-score" class="score-num">0</span>
+            <span class="score-label">An toàn</span>
+        </div>
+        
+        <div class="report-section">
+            <div class="report-title">Phân cấp quản lý nhà nước:</div>
+            <p id="management-info" style="font-size: 0.95rem; line-height: 1.4; color: #444; background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid var(--secondary);"></p>
+            
+            <div id="violation-zone">
+                <div class="report-title" style="color: var(--danger); border-left-color: var(--danger);">Các lỗi vi phạm & Nguy cơ phát hiện:</div>
+                <ul id="violation-list" class="violation-list"></ul>
+            </div>
+            
+            <div class="report-title" style="color: var(--success); border-left-color: var(--success); margin-top: 20px;">Hành động khẩn cấp được khuyến nghị từ CATP Cần Thơ:</div>
+            <p id="advice-text" style="font-size: 0.95rem; line-height: 1.5; color: #333;"></p>
+        </div>
+        
+        <button class="btn-action" onclick="restartQuiz()">Kiểm tra lại từ đầu</button>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    let totalScore = 0;
+    let violations = [];
+    let managementText = "";
+
+    function selectOption(step, score, errorTitle, errorDesc) {
+        totalScore += score;
+        
+        // Lưu thông tin quản lý ở bước 1
+        if (step === 1) {
+            managementText = errorDesc;
+        }
+        // Lưu lỗi vi phạm nếu có từ bước 2 đến bước 6
+        if (score === 0 && step > 1) {
+            violations.push({ title: errorTitle, desc: errorDesc });
+        }
+
+        if (step < 6) {
+            document.getElementById(`step${step}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            // Cập nhật thanh tiến trình
+            document.getElementById('progress').style.width = (currentStep / 6 * 100) + '%';
+            document.getElementById('step-text').innerText = `Bước ${currentStep}/6`;
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-flow').style.display = 'none';
+        document.getElementById('progress').style.width = '100%';
+        document.getElementById('step-text').innerText = 'Hoàn thành';
+        
+        const resultArea = document.getElementById('result-area');
+        const scoreCircle = document.getElementById('score-indicator');
+        const finalScore = document.getElementById('final-score');
+        const violationList = document.getElementById('violation-list');
+        const violationZone = document.getElementById('violation-zone');
+        const adviceText = document.getElementById('advice-text');
+        
+        resultArea.style.display = 'block';
+        finalScore.innerText = totalScore + "%";
+        document.getElementById('management-info').innerText = managementText;
+
+        // Xử lý màu sắc dựa trên tổng điểm
+        if (totalScore >= 80) {
+            scoreCircle.style.backgroundColor = 'var(--success)';
+            adviceText.innerHTML = "Cơ sở đạt chỉ số an toàn cao. Đề nghị tiếp tục duy trì nghiêm ngặt các điều kiện an toàn, thường xuyên tự kiểm tra các thiết bị điện trước khi đóng cửa ra về và tham gia tích cực vào các đợt tập huấn PCCC tại địa phương.";
+        } else if (totalScore >= 50) {
+            scoreCircle.style.backgroundColor = 'var(--warning)';
+            adviceText.innerHTML = "Cơ sở có nguy cơ cháy nổ tiềm ẩn ở mức trung bình. Hãy khẩn trương khắc phục các lỗi hệ thống điện và bổ sung các phương tiện chữa cháy xách tay còn thiếu theo danh sách cảnh báo bên dưới.";
+        } else {
+            scoreCircle.style.backgroundColor = 'var(--danger)';
+            adviceText.innerHTML = "🚨 <strong>Mức độ nguy hiểm báo động đỏ!</strong> Cơ sở vi phạm nhiều lỗi nghiệm trọng về an toàn PCCC theo quy định pháp luật. Khi xảy ra chập cháy trên địa bàn lồng chợ hoặc nhà phố liền kề, cơ sở của bạn có tỷ lệ thiệt hại về người và tài sản cực kỳ cao do thiếu điều kiện sinh tồn. Yêu cầu tạm dừng các hoạt động nguy hiểm và sửa chữa ngay lập tức.";
+        }
+
+        // Xuất danh sách lỗi vi phạm luật
+        violationList.innerHTML = '';
+        if (violations.length === 0) {
+            violationZone.style.display = 'none';
+        } else {
+            violationZone.style.display = 'block';
+            violations.forEach(item => {
+                let li = document.createElement('li');
+                li.className = 'violation-item';
+                li.innerHTML = `<strong>⚠️ Lỗi: ${item.title}</strong><br>${item.desc}`;
+                violationList.appendChild(li);
+            });
+        }
+    }
+
+    function restartQuiz() {
+        currentStep = 1;
+        totalScore = 0;
+        violations = [];
+        managementText = "";
+        
+        document.getElementById('result-area').style.display = 'none';
+        document.getElementById('quiz-flow').style.display = 'block';
+        
+        for (let i = 1; i <= 6; i++) {
+            document.getElementById(`step${i}`).classList.remove('active');
+        }
+        document.getElementById('step1').classList.add('active');
+        
+        document.getElementById('progress').style.width = '16.6%';
+        document.getElementById('step-text').innerText = 'Bước 1/6';
+    }
+</script>
+
+</body>
+</html>
