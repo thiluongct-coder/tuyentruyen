@@ -1,1 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Thử Thách: Quy Trình Dịch Vụ Công</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header h1 {
+            color: #1a56db;
+            font-size: 1.7rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Thanh chọn dịch vụ */
+        .service-selector {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .service-btn {
+            flex: 1;
+            padding: 12px 10px;
+            background: #e2e8f0;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .service-btn.active {
+            background: #1a56db;
+            color: white;
+            box-shadow: 0 4px 10px rgba(26, 86, 219, 0.3);
+        }
+
+        /* Danh sách quy trình */
+        #sortable-list {
+            list-style: none;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .list-item {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .list-item.selected {
+            border-color: #1a56db;
+            background-color: #eef2ff;
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(26, 86, 219, 0.2);
+        }
+
+        .list-item.correct {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .list-item.wrong {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .item-number {
+            background: #1a56db;
+            color: white;
+            font-weight: bold;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-right: 15px;
+        }
+
+        .item-content {
+            flex-grow: 1;
+        }
+
+        .item-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .item-desc {
+            font-size: 0.88rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        /* Nút điều khiển di chuyển */
+        .item-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .btn-move {
+            background: #f3f4f6;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            color: #4b5563;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .btn-move:active {
+            background: #e5e7eb;
+        }
+
+        /* Nút kiểm tra chính */
+        .btn-check {
+            background: #1a56db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(26,86,219,0.3);
+            width: 100%;
+            max-width: 500px;
+            transition: background 0.3s;
+        }
+
+        .btn-check:hover { background: #1e40af; }
+
+        /* Hộp thoại thông báo */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon { font-size: 4rem; margin-bottom: 10px; }
+        .modal h2 { margin-bottom: 15px; color: #10b981; }
+        .modal p { color: #555; line-height: 1.5; margin-bottom: 25px; }
+        .btn-close {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .helper-text {
+            color: #ef4444;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            height: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 id="service-title">Thử Thách Dịch Vụ Công</h1>
+        <p id="service-desc">Chọn một dịch vụ hành chính bên dưới và sắp xếp các bước thực hiện theo đúng quy trình số hóa!</p>
+    </div>
+
+    <!-- Thanh lựa chọn dịch vụ -->
+    <div class="service-selector">
+        <button class="service-btn active" id="btn-sv1" onclick="switchService('sv1')">🚦 Nộp phạt vi phạm giao thông</button>
+        <button class="service-btn" id="btn-sv2" onclick="switchService('sv2')">🆔 Cấp CCCD gắn chip</button>
+    </div>
+
+    <div class="helper-text" id="feedback-msg"></div>
+
+    <ul id="sortable-list">
+        <!-- Danh sách sinh ra bằng JS -->
+    </ul>
+
+    <button class="btn-check" onclick="checkOrder()">Kiểm tra kết quả</button>
+
+    <!-- Modal Chúc mừng -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2>Xuất Sắc! Hoàn Thành Tốt</h2>
+            <p id="modal-text">Bạn đã nắm rõ quy trình thực hiện dịch vụ công trực tuyến một cách chính xác.</p>
+            <button class="btn-close" onclick="closeModal()">Tiếp Tục Khám Phá</button>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu 2 dịch vụ công quản lý hành chính
+        const servicesData = {
+            sv1: {
+                title: "Nộp Phạt Giao Thông Trực Tuyến",
+                desc: "Thủ tục số hóa giúp người dân nộp phạt và nhận giấy tờ tại nhà mà không cần đến cơ quan công an.",
+                modalMsg: "Bạn đã nắm rõ quy trình nộp phạt trực tuyến qua Cổng DVC quốc gia và VNeID, giúp tiết kiệm thời gian đi lại tối đa.",
+                steps: [
+                    { id: 1, title: "Đăng nhập VNeID", desc: "Truy cập Cổng DVC Quốc gia, chọn đăng nhập bằng tài khoản định danh điện tử VNeID cấp độ 2." },
+                    { id: 2, title: "Tra cứu Quyết định", desc: "Nhập mã số Quyết định xử phạt vi phạm hành chính được cung cấp trên biên bản của CSGT." },
+                    { id: 3, title: "Chọn hình thức nhận", desc: "Chọn hình thức thanh toán trực tuyến và nhận kết quả tại nhà qua đường bưu điện." },
+                    { id: 4, title: "Thanh toán điện tử", desc: "Xác nhận số tiền phạt và thực hiện giao dịch thanh toán qua các kênh trung gian tích hợp." },
+                    { id: 5, title: "Nhận giấy tờ tại nhà", desc: "Lưu biên lai điện tử. Bưu điện sẽ tiến hành giao trả giấy tờ bị tạm giữ tận nhà bạn." }
+                ]
+            },
+            sv2: {
+                title: "Đăng Ký Cấp/Đổi CCCD Gắn Chip",
+                desc: "Thủ tục hành chính thực hiện qua Cổng dịch vụ công Bộ Công an hoặc ứng dụng VNeID.",
+                modalMsg: "Bạn đã hiểu rõ quy trình đăng ký cấp đổi Căn cước công dân trực tuyến, giảm thiểu tối đa thời gian chờ đợi lấy số tại cơ quan công an.",
+                steps: [
+                    { id: 1, title: "Kê khai thông tin", desc: "Truy cập tính năng cấp CCCD trên VNeID hoặc Cổng DVC, điền đầy đủ thông tin đề nghị." },
+                    { id: 2, title: "Đặt lịch hẹn", desc: "Chọn ngày, giờ và địa điểm cơ quan công an nơi gần nhất để tiến hành thủ tục thu nhận." },
+                    { id: 3, title: "Đến cơ quan Công an", desc: "Mang theo CCCD cũ/CMND (nếu có) đến đúng lịch hẹn để chụp ảnh, lấy vân tay và mống mắt." },
+                    { id: 4, title: "Xác nhận biểu mẫu", desc: "Kiểm tra lại thông tin trên phiếu thu nhận dữ liệu sinh trắc học và ký xác nhận." },
+                    { id: 5, title: "Nhận thẻ CCCD", desc: "Nhận thẻ CCCD gắn chip trực tiếp tại cơ quan công an hoặc chọn dịch vụ chuyển phát về nhà." }
+                ]
+            }
+        };
+
+        let currentServiceKey = 'sv1';
+        let currentOrder = [];
+        let selectedIndex = null;
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function switchService(key) {
+            currentServiceKey = key;
+            selectedIndex = null;
+            
+            // Cập nhật trạng thái nút chọn giao diện
+            document.getElementById('btn-sv1').classList.remove('active');
+            document.getElementById('btn-sv2').classList.remove('active');
+            document.getElementById('btn-' + key).classList.add('active');
+
+            // Cập nhật tiêu đề mô tả
+            document.getElementById('service-title').innerText = servicesData[key].title;
+            document.getElementById('service-desc').innerText = servicesData[key].desc;
+
+            initGame();
+        }
+
+        function initGame() {
+            currentOrder = shuffleArray(servicesData[currentServiceKey].steps);
+            renderList();
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('sortable-list');
+            listEl.innerHTML = '';
+            document.getElementById('feedback-msg').innerText = '';
+
+            currentOrder.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                if (selectedIndex === index) li.classList.add('selected');
+
+                li.onclick = () => handleItemClick(index);
+
+                li.innerHTML = `
+                    <div class="item-number">${index + 1}</div>
+                    <div class="item-content">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-desc">${item.desc}</div>
+                    </div>
+                    <div class="item-controls">
+                        <button class="btn-move" onclick="moveUp(event, ${index})">▲</button>
+                        <button class="btn-move" onclick="moveDown(event, ${index})">▼</button>
+                    </div>
+                `;
+                
+                li.setAttribute('data-id', item.id);
+                listEl.appendChild(li);
+            });
+        }
+
+        function handleItemClick(index) {
+            if (selectedIndex === null) {
+                selectedIndex = index;
+                renderList();
+                document.getElementById('feedback-msg').innerText = "Chạm vào một ô khác để đổi chỗ";
+                document.getElementById('feedback-msg').style.color = "#1a56db";
+            } else {
+                if (selectedIndex !== index) {
+                    [currentOrder[selectedIndex], currentOrder[index]] = [currentOrder[index], currentOrder[selectedIndex]];
+                }
+                selectedIndex = null;
+                renderList();
+            }
+        }
+
+        function moveUp(event, index) {
+            event.stopPropagation();
+            selectedIndex = null;
+            if (index > 0) {
+                [currentOrder[index], currentOrder[index - 1]] = [currentOrder[index - 1], currentOrder[index]];
+                renderList();
+            }
+        }
+
+        function moveDown(event, index) {
+            event.stopPropagation();
+            selectedIndex = null;
+            if (index < currentOrder.length - 1) {
+                [currentOrder[index], currentOrder[index + 1]] = [currentOrder[index + 1], currentOrder[index]];
+                renderList();
+            }
+        }
+
+        function checkOrder() {
+            selectedIndex = null;
+            const items = document.querySelectorAll('.list-item');
+            let isAllCorrect = true;
+
+            items.forEach((item, index) => {
+                const originalId = parseInt(item.getAttribute('data-id'));
+                item.classList.remove('correct', 'wrong');
+
+                if (originalId === index + 1) {
+                    item.classList.add('correct');
+                } else {
+                    item.classList.add('wrong');
+                    isAllCorrect = false;
+                }
+            });
+
+            if (isAllCorrect) {
+                document.getElementById('modal-text').innerText = servicesData[currentServiceKey].modalMsg;
+                document.getElementById('success-modal').style.display = 'flex';
+                document.getElementById('feedback-msg').innerText = "";
+            } else {
+                document.getElementById('feedback-msg').innerText = "Vẫn còn bước chưa đúng thứ tự (màu đỏ). Hãy sắp xếp lại!";
+                document.getElementById('feedback-msg').style.color = "#ef4444";
+                
+                setTimeout(() => {
+                    items.forEach(item => item.classList.remove('wrong', 'correct'));
+                }, 2000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('success-modal').style.display = 'none';
+            // Chuyển sang dịch vụ còn lại hoặc xáo trộn lại để chơi tiếp
+            switchService(currentServiceKey === 'sv1' ? 'sv2' : 'sv1');
+        }
+
+        window.onload = () => switchService('sv1');
+    </script>
+</body>
+</html>
