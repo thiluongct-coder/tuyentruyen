@@ -1,1 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hỏa Kế Sinh Tồn - CATP Cần Thơ</title>
+    <style>
+        :root {
+            --danger: #d32f2f;
+            --dark-bg: #121214;
+            --card-bg: #1a1a1e;
+            --text-color: #e4e6eb;
+            --success: #2e7d32;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--dark-bg); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--text-color); }
+        
+        .game-container { max-width: 600px; width: 100%; background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2f2f35; position: relative; overflow: hidden; }
+        
+        /* Hiệu ứng khói độc giả lập tăng dần */
+        .smoke-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 80%); pointer-events: none; opacity: 0.3; transition: opacity 2s; z-index: 1; }
+        
+        .header { text-align: center; margin-bottom: 20px; z-index: 2; position: relative; }
+        .header h2 { color: var(--danger); margin: 0 0 5px 0; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Thanh đếm ngược thời gian */
+        .timer-bar-container { width: 100%; height: 6px; background: #3a3a42; border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+        .timer-bar { height: 100%; background: #ffeb3b; width: 100%; transition: width 0.1s linear; }
 
+        .situation-box { background: #26262b; padding: 20px; border-radius: 10px; border-left: 5px solid var(--danger); margin-bottom: 25px; font-size: 1.05rem; line-height: 1.6; z-index: 2; position: relative; }
+        
+        .choice-btn { display: block; width: 100%; padding: 15px 20px; margin: 12px 0; background: #2a2a32; color: var(--text-color); border: 1px solid #3a3a42; border-radius: 8px; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.2s; z-index: 2; position: relative; line-height: 1.4; }
+        .choice-btn:hover { background: #34343f; border-color: #ffeb3b; }
+        
+        /* Màn hình kết quả */
+        .result-screen { display: none; text-align: center; padding: 20px 0; }
+        .result-title { font-size: 1.6rem; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
+        .result-desc { text-align: left; background: #26262b; padding: 15px; border-radius: 8px; line-height: 1.5; font-size: 0.95rem; margin-bottom: 20px; }
+        .law-alert { background: #fff8e1; color: #5c4100; padding: 12px; border-left: 4px solid #ffb300; border-radius: 4px; font-size: 0.9rem; margin-top: 10px; text-align: left; }
+        
+        .action-btn { background: var(--danger); color: white; border: none; padding: 12px 30px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; }
+        .action-btn:hover { background: #b71c1c; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div id="smoke" class="smoke-overlay"></div>
+
+    <div id="stage-play">
+        <div class="header">
+            <h2>Kịch bản thoát hiểm: 180s Sinh Tử</h2>
+            <p style="margin:5px 0 0 0; font-size:0.9rem; color:#aaa;">Lựa chọn sai đồng nghĩa với đánh đổi bằng mạng sống</p>
+        </div>
+        
+        <div class="timer-bar-container">
+            <div id="timer" class="timer-bar"></div>
+        </div>
+
+        <div id="situation-text" class="situation-box">Đang tải tình huống...</div>
+        <div id="choices-wrapper"></div>
+    </div>
+
+    <div id="stage-result" class="result-screen">
+        <div id="res-title" class="result-title"></div>
+        <div id="res-desc" class="result-desc"></div>
+        <button class="action-btn" onclick="initGame()">Thử thách lại từ đầu</button>
+    </div>
+</div>
+
+<script>
+    const kichBan = {
+        chuong1: {
+            text: "🚨 <b>02:00 Đêm:</b> Bạn đang ngủ tại tầng lửng căn nhà ống kinh doanh quần áo thì ngửi thấy mùi khét lẹt. Nhìn xuống tầng trệt, ngọn lửa từ khu vực sạc xe máy điện đang bùng lên dữ dội, khói đen bao trùm cầu thang độc đạo. Bạn sẽ làm gì?",
+            time: 15,
+            smoke: 0.4,
+            choices: [
+                { text: "Vội vã ôm lấy giấy tờ, mở cửa lao đại qua làn khói xuống tầng trệt để ra cửa chính.", next: "chet_ngat" },
+                { text: "Hô hoán gọi gia đình thức giấc, lấy ngay khăn mặt nhúng nước bịt mũi, di chuyển cúi thấp người hướng ra ban công phía trước.", next: "chuong2" }
+            ]
+        },
+        chet_ngat: {
+            isEnd: true,
+            die: true,
+            title: "💀 Bạn đã tử vong do ngạt khói độc",
+            desc: "<b>Sai lầm chết người:</b> Khói từ đám cháy pin xe điện chứa chất kịch độc xyanua và CO. Chỉ cần hít vào 2-3 hơi ở nhiệt độ cao, đường thở của bạn sẽ bị bỏng rát và gây ngất lịm chỉ trong 30 giây trước khi kịp chạm vào tay nắm cửa.",
+            law: "<b>Lời khuyên từ CATP Cần Thơ:</b> Tuyệt đối không cố thoát ra bằng lối đã bị lửa khói bao vây khi không có đồ bảo hộ chuyên dụng. Hãy tìm lối tạm lánh khói."
+        },
+        chuong2: {
+            text: "💨 <b>02:01:</b> Cả nhà đã ra được ban công tầng lửng. Tuy nhiên, ban công này đã bị hàn chết bằng khung sắt <b>'chuồng cọp' chống trộm</b> kiên cố, không có ô cửa thoát hiểm mở bằng chìa. Khói bắt đầu len lỏi qua khe cửa kính táp ra ngoài. Bạn làm thế nào?",
+            time: 12,
+            smoke: 0.6,
+            choices: [
+                { text: "Dùng búa tạ (hoặc thanh sắt) có sẵn ngoài ban công ra sức đập gãy điểm hàn chốt yếu của khung sắt.", next: "chuong3" },
+                { text: "Bám vào lan can gào khóc thật to để chờ xe chữa cháy tới cứu hộ.", next: "chet_chuong_copt" }
+            ]
+        },
+        chet_chuong_copt: {
+            isEnd: true,
+            die: true,
+            title: "💀 Tử vong do kẹt trong chuồng cọp",
+            desc: "<b>Hậu quả thực tế:</b> Từ trung tâm thành phố đến hiện trường phải mất ít nhất 7-10 phút di chuyển. Trong thời gian đó, chiếc 'chuồng cọp' kiên cố bạn tự tay làm để chống trộm đã biến thành chiếc lồng giam lỏng gia đình bạn giữa làn khói độc đậm đặc.",
+            law: "<b>Căn cứ pháp lý:</b> Vi phạm khuyến cáo an toàn thoát nạn của Bộ Công an. Bắt buộc các hộ nhà ống phải cắt mở một ô cửa thoát hiểm kích thước tối thiểu 0.6m x 0.6m trên chuồng cọp."
+        },
+        chuong3: {
+            text: "⚡ <b>02:02:</b> Khung sắt đã gãy, tạo ra một khoảng trống vừa một người chui. Lúc này lửa bên trong đã làm vỡ cửa kính, sức nóng phả thẳng vào lưng. Phía dưới ban công là mái tôn của nhà hàng xóm bên cạnh, cách khoảng 3 mét. Hành động tiếp theo?",
+            time: 10,
+            smoke: 0.8,
+            choices: [
+                { text: "Sợ hãi ôm đầu, nhắm mắt nhảy đại xuống mái tôn nhà bên cạnh.", next: "chet_chan_thuong" },
+                { text: "Lấy ngay chăn ga gối đang phơi ngoài ban công (hoặc rèm cửa) xé dọc, bện thắt nút thành dây, buộc chặt vào thanh sắt để leo xuống.", next: "song_sot" }
+            ]
+        },
+        chet_chan_thuong: {
+            isEnd: true,
+            die: true,
+            title: "❌ Thoát nạn sai cách gây chấn thương nặng",
+            desc: "<b>Kết cục đáng tiếc:</b> Độ cao 3 mét nhảy tự do xuống mái tôn dốc khiến bạn bị gãy xương đùi và chấn thương sọ não trầm trọng, mất hoàn toàn khả năng di chuyển đúng lúc ngọn lửa từ cửa sổ tầng lửng táp bùng ra ngoài.",
+            law: "<b>Kỹ năng cốt lõi:</b> Trường hợp khẩn cấp bắt buộc phải nhảy, hãy thả các vật mềm như đệm, chăn xuống trước để giảm chấn, hoặc dùng dây tự chế từ vải để hạ thấp độ cao rơi."
+        },
+        song_sot: {
+            isEnd: true,
+            die: false,
+            title: "🎉 BẠN ĐÃ THOÁT NẠN THÀNH CÔNG!",
+            desc: "<b>Chúc mừng bản lĩnh sinh tồn của bạn!</b> Nhờ sự bình tĩnh giữ khăn ẩm bịt mũi, sự chuẩn bị sẵn dụng cụ phá dỡ tại ban công và kỹ năng tạo dây thoát hiểm tự chế bằng vải, bạn đã cứu sống chính mình và người thân trong gang tấc trước khi ngọn lửa thiêu rụi toàn bộ ngôi nhà.",
+            law: "<b>Thông điệp từ Công an TP Cần Thơ:</b> Hãy dọn dẹp ngay lối thông thoáng ra ban công, trang bị sẵn búa tạ và mở lối thoát hiểm trên chuồng cọp ngay hôm nay. Đừng để bi kịch kịch bản này xảy ra ngoài đời thực!"
+        }
+    };
+
+    let tinhHuongHienTai = 'chuong1';
+    let demNguoc;
+    let thoiGianConLai = 0;
+
+    function initGame() {
+        tinhHuongHienTai = 'chuong1';
+        document.getElementById('stage-result').style.display = 'none';
+        document.getElementById('stage-play').style.display = 'block';
+        taiTinhHuong(tinhHuongHienTai);
+    }
+
+    function taiTinhHuong(id) {
+        clearInterval(demNguoc);
+        const data = kichBan[id];
+        
+        if (data.isEnd) {
+            hanhDongKetThuc(data);
+            return;
+        }
+
+        document.getElementById('smoke').style.opacity = data.smoke;
+        document.getElementById('situation-text').innerHTML = data.text;
+        
+        const wrapper = document.getElementById('choices-wrapper');
+        wrapper.innerHTML = '';
+
+        data.choices.forEach(luaChon => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerHTML = luaChon.text;
+            btn.onclick = () => {
+                tinhHuongHienTai = luaChon.next;
+                taiTinhHuong(tinhHuongHienTai);
+            };
+            wrapper.appendChild(btn);
+        });
+
+        thoiGianConLai = data.time;
+        const thanhHenGio = document.getElementById('timer');
+        const tongThoiGian = data.time;
+        
+        demNguoc = setInterval(() => {
+            thoiGianConLai -= 0.1;
+            const phanTram = (thoiGianConLai / tongThoiGian) * 100;
+            thanhHenGio.style.width = phanTram + '%';
+
+            if (thoiGianConLai <= 0) {
+                clearInterval(demNguoc);
+                hanhDongKetThuc({
+                    die: true,
+                    title: "⏳ Hết thời gian quyết định!",
+                    desc: "Trong đám cháy nhà ống, bạn chỉ có tối đa 10-15 giây để hành động trước khi khói độc vô hình làm tê liệt hệ thần kinh. Sự chần chừ, hoảng loạn của bạn đã khiến cơ hội sống khép lại.",
+                    law: "<b>Khuyến cáo:</b> Thường xuyên tham gia các buổi diễn tập phương án PCCC tại tổ dân phố để hình thành phản xạ sinh tồn tự nhiên."
+                });
+            }
+        }, 100);
+    }
+
+    function hanhDongKetThuc(data) {
+        document.getElementById('stage-play').style.display = 'none';
+        const manKetQua = document.getElementById('stage-result');
+        manKetQua.style.display = 'block';
+
+        const tieuDe = document.getElementById('res-title');
+        tieuDe.innerText = data.title;
+        tieuDe.style.color = data.die ? 'var(--danger)' : 'var(--success)';
+        
+        document.getElementById('smoke').style.opacity = data.die ? '0.9' : '0.1';
+
+        document.getElementById('res-desc').innerHTML = `
+            <p>${data.desc}</p>
+            <div class="law-alert">${data.law}</div>
+        `;
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
