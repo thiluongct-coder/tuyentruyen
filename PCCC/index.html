@@ -2,20 +2,284 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>PCCC</title>
+    <title>Phòng cháy, chữa cháy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #ffffff 100%); min-height: 100vh; padding: 50px 8%; }
-        .back-btn { display: inline-block; margin-bottom: 20px; color: #2563eb; font-weight: 600; text-decoration: none; }
-        .box { background: #fee2e2; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        h1 { margin-bottom: 20px; color: #1e293b; }
+        
+        /* HIỆU ỨNG NỀN - KHÔNG GIAN CÔNG NGHỆ CAO */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0b1121;
+            /* Lưới công nghệ tự động trôi */
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridSlide 20s linear infinite;
+            min-height: 100vh; 
+            padding: 50px 8%; 
+            color: #e2e8f0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        @keyframes gridSlide {
+            0% { background-position: 0px 0px; }
+            100% { background-position: 40px 40px; }
+        }
+
+        /* 2 KHỐI SÁNG NĂNG LƯỢNG LƠ LỬNG PHÍA SAU */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 40vw; height: 40vw;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: floatOrb 10s ease-in-out infinite alternate;
+        }
+        body::before {
+            top: -10%; left: -10%;
+            background: rgba(0, 240, 255, 0.15); /* Sáng Xanh Cyan */
+        }
+        body::after {
+            bottom: -10%; right: -10%;
+            background: rgba(139, 92, 246, 0.15); /* Sáng Tím Tương lai */
+            animation-delay: -5s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 30px) scale(1.1); }
+        }
+
+        /* NÚT QUAY LẠI - Giao diện Điều khiển */
+        .back-btn { 
+            display: inline-flex; 
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px; 
+            color: #00f0ff; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            text-decoration: none; 
+            background: rgba(0, 240, 255, 0.1);
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);
+        }
+        .back-btn:hover { 
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: translateX(-5px); 
+            text-shadow: 0 0 8px #00f0ff;
+        }
+
+        /* BẢNG ĐIỀU KHIỂN CHÍNH (Glassmorphism Dashboard) */
+        .box { 
+            background: linear-gradient(135deg, rgba(16, 24, 45, 0.75) 0%, rgba(11, 17, 33, 0.85) 100%); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 45px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 2px rgba(0, 240, 255, 0.4); 
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            animation: bootUp 0.8s ease-out forwards;
+        }
+
+        /* TIA QUÉT (SCANNER LINE) TRÊN VIỀN BẢNG ĐIỀU KHIỂN */
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 2px;
+            background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+            animation: scanline 4s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        @keyframes bootUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { 
+            margin-bottom: 10px; 
+            color: #ffffff; 
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            display: flex;
+            align-items: center;
+        }
+        .description { 
+            color: #94a3b8; 
+            margin-bottom: 30px; 
+            font-size: 1.05rem; 
+        }
+
+        /* TIÊU ĐỀ PHÂN KHU */
+        .section-title {
+            font-size: 1.15rem;
+            color: #38bdf8;
+            margin: 40px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .link-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        /* ĐỊNH DẠNG CHUNG CHO CÁC THẺ (Cyber Cards) */
+        .post-tag, .interactive-tag {
+            display: block;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 22px;
+            border-radius: 12px;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* HIỆU ỨNG VỆT SÁNG LƯỚT QUA KHI HOVER (Sweep Light) */
+        .post-tag::after, .interactive-tag::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
+        }
+
+        /* THẺ BÀI VIẾT LÝ THUYẾT (Tông Xanh Hologram) */
+        .post-tag { border-left: 4px solid #3b82f6; }
+        .post-title { font-size: 1.15rem; font-weight: 600; color: #60a5fa; margin-bottom: 6px; }
+        .post-summary { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+        
+        .post-tag:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateX(6px); 
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+        .post-tag:hover::after { left: 200%; }
+
+        /* THẺ TRÒ CHƠI TƯƠNG TÁC (Tông Vàng/Cam Năng Lượng) */
+        .interactive-tag { border-left: 4px solid #f59e0b; }
+        .interactive-title { font-size: 1.15rem; font-weight: 600; color: #fbbf24; margin-bottom: 6px; }
+        .interactive-summary { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; }
+        
+        .interactive-tag:hover {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.4);
+            transform: translateX(6px); 
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+        }
+        .interactive-tag:hover::after { left: 200%; }
+
+        /* TEM CẢNH BÁO / NHÃN HOT (Neon Red Alert) */
+        .badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+            animation: cyberPulse 2s infinite;
+        }
+
+        @keyframes cyberPulse {
+            0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); transform: scale(1); }
+            50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); border-color: #ef4444; transform: scale(1.05); }
+            100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); transform: scale(1); }
+        }
     </style>
 </head>
 <body>
     <a href="https://thiluongct-coder.github.io/tuyentruyen/index.html" class="back-btn">← Quay lại trang chủ</a>
+    
     <div class="box">
-        <h1>🔥 PCCC</h1>
-        <p>Nội dung chi tiết về hướng dẫn thoát hiểm và các kỹ năng sống còn khi xảy ra hỏa hoạn.</p>
+        <h1>🔥 Phòng Cháy Chữa Cháy</h1>
+        <p class="description">Hệ thống trang bị kiến thức, kỹ năng an toàn phòng cháy chữa cháy và hướng dẫn thoát nạn trong các tình huống khẩn cấp.</p>
+        
+        <!-- ================= KHU VỰC 1: CẨM NANG & KIẾN THỨC ================= -->
+        <h2 class="section-title">📖 Kiến thức & Kỹ năng an toàn</h2>
+        <div class="link-list">
+            <a href="PCCC/AnToanGiaDinh.html" class="post-tag">
+                <div class="post-title">1. Cẩm nang an toàn PCCC gia đình</div>
+                <div class="post-summary">Hướng dẫn phòng ngừa cháy nổ từ các thiết bị điện, đun nấu và thắp hương thờ cúng trong hộ gia đình.</div>
+            </a>
+            <a href="PCCC/SuDungBinhChuaChay.html" class="post-tag">
+                <div class="post-title">2. Hướng dẫn sử dụng thiết bị chữa cháy</div>
+                <div class="post-summary">Phân biệt và cách sử dụng đúng chuẩn các loại bình chữa cháy xách tay (bình bột, bình khí CO2) và mặt nạ phòng độc.</div>
+            </a>
+            <a href="PCCC/KyNangThoatNan.html" class="post-tag">
+                <div class="post-title">3. Kỹ năng thoát nạn khi có cháy</div>
+                <div class="post-summary">Các nguyên tắc sống còn để bảo vệ đường thở và tìm kiếm lối thoát hiểm an toàn khi xảy ra hỏa hoạn ở nhà cao tầng.</div>
+            </a>
+            <a href="PCCC/QuyDinhPhapLuat.html" class="post-tag">
+                <div class="post-title">4. Quy định pháp luật về PCCC</div>
+                <div class="post-summary">Trách nhiệm của công dân và các mức xử phạt đối với hành vi vi phạm quy định về phòng cháy và chữa cháy.</div>
+            </a>
+        </div>
+
+        <!-- ================= KHU VỰC 2: TRÒ CHƠI & HUẤN LUYỆN ================= -->
+        <h2 class="section-title">🚨 Trải nghiệm & Mô phỏng thực tế</h2>
+        <div class="link-list">
+            
+            <a href="GamePCCC/ThoatHiemChungCu.html" class="interactive-tag">
+                <span class="badge">HOT</span>
+                <div class="interactive-title">🏢 Mô phỏng: Thoát hiểm chung cư</div>
+                <div class="interactive-summary">Hệ thống chuông báo cháy vừa vang lên! Hãy đưa ra các quyết định chính xác để thoát khỏi tòa nhà đang ngập khói.</div>
+            </a>
+
+            <a href="GamePCCC/DapTatDamChay.html" class="interactive-tag">
+                <span class="badge">MỚI</span>
+                <div class="interactive-title">🧯 Thử thách: Dập tắt đám cháy</div>
+                <div class="interactive-summary">Minigame thực hành chọn đúng loại bình chữa cháy và thao tác dập tắt các nguyên nhân cháy khác nhau (cháy xăng, cháy chập điện...).</div>
+            </a>
+
+            <a href="GamePCCC/NhanDienNguyCo.html" class="interactive-tag">
+                <div class="interactive-title">🔍 Tìm kiếm: Nhận diện nguy cơ</div>
+                <div class="interactive-summary">Khám phá các căn phòng 3D và tìm ra những mối nguy cơ tiềm ẩn có thể dẫn đến cháy nổ trước khi quá muộn.</div>
+            </a>
+
+            <a href="GamePCCC/TracNghiemPCCC.html" class="interactive-tag">
+                <div class="interactive-title">📝 Trắc nghiệm: Hiệp sĩ cứu hỏa</div>
+                <div class="interactive-summary">Bài kiểm tra kiến thức tổng hợp về PCCC & CNCH với 20 câu hỏi tình huống thực tế có tính giờ.</div>
+            </a>
+
+        </div>
     </div>
 </body>
 </html>
