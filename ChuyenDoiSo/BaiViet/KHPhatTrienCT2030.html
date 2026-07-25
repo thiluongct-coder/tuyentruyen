@@ -2,53 +2,167 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển đổi số Cần Thơ 2030 - Toàn cảnh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe UI:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        /* --- Reset & Font chung --- */
+        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
 
-        /* Cấu trúc phần Parallax */
+        /* --- STYLES CHO PHẦN PARALLAX --- */
         .parallax-section {
             position: relative;
             height: 100vh; /* Chiều cao toàn màn hình */
-            background-attachment: fixed;
+            background-attachment: fixed; /* Tạo hiệu ứng trôi */
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
         }
 
-        /* Lớp phủ làm tối ảnh để chữ dễ đọc hơn */
+        /* Lớp phủ làm tối ảnh để chữ dễ đọc */
         .overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
         }
 
         .text-box {
-            position: relative;
-            z-index: 1;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            max-width: 800px;
+            position: relative; z-index: 1;
+            text-align: center; padding: 20px; max-width: 800px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Nội dung văn bản giữa các phần */
+        .parallax-section h1 { font-size: 3.5rem; margin-bottom: 10px; }
+        .parallax-section h2 { font-size: 2.5rem; }
+        .parallax-section p { font-size: 1.2rem; }
+
+        /* Khối nội dung văn bản xen kẽ */
         .content-block {
-            padding: 80px 15%;
+            padding: 80px 10%;
             background: #f9f9f9;
-            line-height: 1.8;
-            font-size: 1.1rem;
-            color: #333;
+            line-height: 1.8; font-size: 1.1rem; color: #333;
         }
 
-        h1 { font-size: 3rem; }
+        .content-block h2 { color: #2c3e50; border-left: 5px solid #3498db; padding-left: 15px; }
+
+        /* --- STYLES CHO PHẦN SƠ ĐỒ TƯƠNG TÁC (CUỐI TRANG) --- */
+        #interactive-map-area {
+            background-color: #001a33; /* Màu nền tối */
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .map-header {
+            text-align: center; color: white;
+            font-size: 1.8rem; font-weight: bold;
+            margin-bottom: 60px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive tự động */
+            gap: 40px;
+            padding: 0 50px;
+            max-width: 1200px; margin: 0 auto;
+            position: relative; z-index: 2;
+        }
+
+        .node-wrapper {
+            display: flex; flex-direction: column;
+            align-items: center; cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .node-wrapper:hover { transform: translateY(-10px); }
+
+        .node {
+            width: 90px; height: 90px;
+            background: rgba(255,255,255,0.1);
+            color: #00d4ff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 4px solid #00d4ff; font-size: 40px;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .node-wrapper:hover .node {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 35px rgba(0, 212, 255, 0.8);
+        }
+
+        .node-label {
+            color: white; margin-top: 15px;
+            font-weight: bold; text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 15px; border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Hiệu ứng nền cho phần tương tác (giữ lại ảnh nền mờ) */
+        #interactive-map-area::before {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000');
+            background-size: cover; background-position: center;
+            opacity: 0.2; z-index: 1;
+        }
+
+        /* --- STYLES CHO CỬA SỔ POPUP --- */
+        .popup-overlay {
+            display: none; /* Ẩn mặc định */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); /* Làm mờ nền phía sau popup */
+        }
+
+        .popup-content {
+            display: none; /* Mặc định các nội dung popup bên trong đều ẩn */
+            background: white;
+            width: 90%; max-width: 600px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            position: relative;
+            border-left: 8px solid #3498db;
+            animation: slideIn 0.4s ease; /* Hiệu ứng trượt vào */
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .popup-close {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 1rem; font-weight: bold;
+            color: #e74c3c; cursor: pointer;
+        }
+
+        .popup-content h2 { color: #2c3e50; margin-top: 0; }
+        .popup-content ul { padding-left: 20px; color: #555; }
+        .popup-content li { margin-bottom: 10px; }
+
+        /* --- Responsive cho màn hình nhỏ --- */
+        @media (max-width: 768px) {
+            .parallax-section h1 { font-size: 2.2rem; }
+            .parallax-section h2 { font-size: 1.8rem; }
+            .map-container { grid-template-columns: repeat(2, 1fr); gap: 30px; padding: 0 20px; }
+            .content-block { padding: 50px 5%; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- PHẦN 1: TIÊU ĐỀ -->
+    <!-- ========================================= -->
+    <!-- PHẦN 1: TRÌNH BÀY PARALLAX (Nội dung chi tiết) -->
+    <!-- ========================================= -->
+
+    <!-- TIÊU ĐỀ -->
     <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000');">
         <div class="overlay"></div>
         <div class="text-box">
@@ -62,7 +176,7 @@
         <p>Khai phá tiềm năng dữ liệu để phục vụ chính quyền, cung cấp dịch vụ thân thiện cho người dân và đổi mới sáng tạo toàn diện. Xây dựng nhận thức thống nhất về dữ liệu làm nền tảng cho đô thị thông minh.</p>
     </div>
 
-    <!-- PHẦN 2: HẠ TẦNG -->
+    <!-- HẠ TẦNG -->
     <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2000');">
         <div class="overlay"></div>
         <div class="text-box">
@@ -73,13 +187,13 @@
     <div class="content-block">
         <h2>II. Mục tiêu đến năm 2030</h2>
         <ul>
-            <li>Hoàn thiện Trung tâm dữ liệu thành phố đạt chuẩn quốc gia[cite: 1].</li>
-            <li>100% hệ thống thông tin sở, ban, ngành được liên thông qua nền tảng LGSP[cite: 1].</li>
-            <li>Hình thành Nền tảng giám sát điều hành thông minh (IOC) cấp thành phố[cite: 1].</li>
+            <li>Hoàn thiện Trung tâm dữ liệu thành phố đạt chuẩn quốc gia.</li>
+            <li>100% hệ thống thông tin sở, ban, ngành được liên thông qua nền tảng LGSP.</li>
+            <li>Hình thành Nền tảng giám sát điều hành thông minh (IOC) cấp thành phố.</li>
         </ul>
     </div>
 
-    <!-- PHẦN 3: KINH TẾ SỐ -->
+    <!-- KINH TẾ SỐ -->
     <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000');">
         <div class="overlay"></div>
         <div class="text-box">
@@ -89,8 +203,127 @@
 
     <div class="content-block">
         <h2>III. Nhiệm vụ trọng tâm</h2>
-        <p>Dữ liệu giao thông, nông nghiệp và y tế sẽ được số hóa toàn diện. Đặc biệt, 100% sản phẩm OCOP được gắn mã truy xuất nguồn gốc[cite: 1]. An toàn thông tin được đảm bảo theo mô hình bảo vệ 4 lớp[cite: 1].</p>
+        <p>Dữ liệu giao thông, nông nghiệp và y tế sẽ được số hóa toàn diện. Đặc biệt, 100% sản phẩm OCOP được gắn mã truy xuất nguồn gốc. An toàn thông tin được đảm bảo theo mô hình bảo vệ 4 lớp.</p>
     </div>
 
+    <!-- ========================================= -->
+    <!-- PHẦN 2: SƠ ĐỒ TƯƠNG TÁC (Nút chọn ở cuối trang) -->
+    <!-- ========================================= -->
+
+    <div id="interactive-map-area">
+        <div class="map-header">KẾ HOẠCH PHÁT TRIỂN DỮ LIỆU THÀNH PHỐ CẦN THƠ ĐẾN NĂM 2030</div>
+        
+        <div class="map-container">
+            <div class="node-wrapper" onclick="show('p1')">
+                <div class="node">🎯</div>
+                <div class="node-label">Mục tiêu</div>
+            </div>
+            <div class="node-wrapper" onclick="show('p2')">
+                <div class="node">🛣️</div>
+                <div class="node-label">Giao thông</div>
+            </div>
+            <div class="node-wrapper" onclick="show('p3')">
+                <div class="node">🏥</div>
+                <div class="node-label">Y tế</div>
+            </div>
+            <div class="node-wrapper" onclick="show('p4')">
+                <div class="node">🌱</div>
+                <div class="node-label">Nông nghiệp</div>
+            </div>
+            <div class="node-wrapper" onclick="show('p5')">
+                <div class="node">🛡️</div>
+                <div class="node-label">An sinh</div>
+            </div>
+            <div class="node-wrapper" onclick="show('p6')">
+                <div class="node">💻</div>
+                <div class="node-label">An toàn</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- KHỐI CỬA SỔ POPUP ẨN (Sẽ hiện ra khi bấm nút) -->
+    <!-- ========================================= -->
+    <div id="popup-overlay" class="popup-overlay" onclick="closePopupOnOutside(event)">
+        
+        <div id="p1" class="popup-content">
+            <span class="popup-close" onclick="hide('p1')">ĐÓNG</span>
+            <h2>Mục tiêu phát triển</h2>
+            <ul>
+                <li>Số hóa 100% hồ sơ thủ tục hành chính.</li>
+                <li>Đảm bảo dữ liệu "Nhập một lần - Khai thác nhiều lần".</li>
+            </ul>
+        </div>
+
+        <div id="p2" class="popup-content">
+            <span class="popup-close" onclick="hide('p2')">ĐÓNG</span>
+            <h2>Giao thông & Logistics</h2>
+            <ul>
+                <li>Số hóa toàn diện hạ tầng giao thông thành phố.</li>
+                <li>Tích hợp IoT/Camera để dự báo ùn tắc.</li>
+            </ul>
+        </div>
+
+        <div id="p3" class="popup-content">
+            <span class="popup-close" onclick="hide('p3')">ĐÓNG</span>
+            <h2>Y tế & Giáo dục</h2>
+            <ul>
+                <li>Mỗi người dân sở hữu hồ sơ sức khỏe điện tử.</li>
+                <li>Số hóa 100% tài nguyên giáo dục dùng chung.</li>
+            </ul>
+        </div>
+
+        <div id="p4" class="popup-content">
+            <span class="popup-close" onclick="hide('p4')">ĐÓNG</span>
+            <h2>Nông nghiệp & Môi trường</h2>
+            <ul>
+                <li>Quan trắc xả thải thời gian thực về Trung tâm IOC.</li>
+                <li>Định danh và truy xuất nguồn gốc nông sản thông minh.</li>
+            </ul>
+        </div>
+
+        <div id="p5" class="popup-content">
+            <span class="popup-close" onclick="hide('p5')">ĐÓNG</span>
+            <h2>An sinh & Lao động</h2>
+            <ul>
+                <li>Cơ sở dữ liệu bảo hiểm xã hội tập trung.</li>
+                <li>Chuẩn hóa dữ liệu lao động trên nền tảng số.</li>
+            </ul>
+        </div>
+
+        <div id="p6" class="popup-content">
+            <span class="popup-close" onclick="hide('p6')">ĐÓNG</span>
+            <h2>An toàn & Nhân lực</h2>
+            <ul>
+                <li>Triển khai bảo mật an ninh mạng đa lớp.</li>
+                <li>Đào tạo chuyên sâu kỹ năng số cho cán bộ.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        function show(id) { 
+            // 1. Hiển thị lớp nền mờ tổng thể (overlay)
+            document.getElementById('popup-overlay').style.display = 'flex';
+            // 2. Tự động ẩn tất cả các popup nội dung khác
+            document.querySelectorAll('.popup-content').forEach(p => p.style.display = 'none'); 
+            // 3. Mở đúng popup được chọn
+            document.getElementById(id).style.display = 'block'; 
+        }
+        
+        function hide(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            document.getElementById('popup-overlay').style.display = 'none';
+        }
+
+        function closePopupOnOutside(event) {
+            // Nếu người dùng bấm vào vùng nền mờ bên ngoài popup thì đóng lại
+            if (event.target.id === 'popup-overlay') {
+                document.getElementById('popup-overlay').style.display = 'none';
+                document.querySelectorAll('.popup-content').forEach(p => p.style.display = 'none');
+            }
+        }
+    </script>
 </body>
 </html>
