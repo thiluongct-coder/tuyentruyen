@@ -1,1 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng Đài Cảnh Báo Lừa Đảo - CATP Cần Thơ</title>
+    <style>
+        :root {
+            --phone-bg: #121212;
+            --android-blue: #1a73e8;
+            --danger-red: #d93025;
+            --success-green: #1e7e34;
+            --text-main: #f1f3f4;
+            --chat-bg: #303134;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+        body { background-color: #202124; margin: 0; padding: 10px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: var(--text-main); }
+        
+        /* Giả lập khung điện thoại */
+        .phone-mockup { width: 100%; max-width: 380px; height: 720px; background: var(--phone-bg); border: 12px solid #3c4043; border-radius: 36px; overflow: hidden; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+        .status-bar { height: 25px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; background: #000; color: #fff; z-index: 10; }
+        .screen-content { flex: 1; padding: 15px; display: flex; flex-direction: column; position: relative; overflow-y: auto; }
+        
+        /* Menu lựa chọn */
+        .menu-title { text-align: center; font-size: 16px; font-weight: bold; margin: 15px 0; color: #ffeb3b; text-transform: uppercase; }
+        .menu-btn { background: #202124; color: #fff; border: 1px solid #5f6368; padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; font-size: 14px; }
+        .menu-btn:hover { border-color: var(--android-blue); background: #2d2e31; }
+        .menu-btn b { color: #ff8a80; display: block; margin-bottom: 4px; }
 
+        /* Giao diện Chat/Tin nhắn */
+        .chat-container { display: flex; flex-direction: column; flex: 1; }
+        .chat-bubble { background: var(--chat-bg); padding: 12px 15px; border-radius: 16px; margin-bottom: 15px; max-width: 85%; font-size: 14px; line-height: 1.4; border-bottom-left-radius: 4px; align-self: flex-start; }
+        .user-bubble { background: var(--android-blue); color: white; align-self: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 4px; }
+        .download-link { color: #8ab4f8; display: block; margin-top: 8px; word-break: break-all; text-decoration: underline; cursor: pointer; }
+        
+        /* Giao diện Cuộc gọi Video Fake */
+        .video-call-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 25; display: none; flex-direction: column; justify-content: space-between; padding: 40px 20px; text-align: center; }
+        .caller-avatar { width: 120px; height: 120px; border-radius: 50%; background: #333; margin: 40px auto 10px; border: 3px solid #fff; display: flex; justify-content: center; align-items: center; font-size: 50px; position: relative; overflow: hidden; }
+        /* Giả lập hiệu ứng nhiễu sóng giật giật của Deepfake */
+        .glitch-effect { position: absolute; width: 100%; height: 100%; background: rgba(0,255,0,0.1); animation: glitch 0.5s infinite; }
+        @keyframes glitch { 0% { opacity: 0.3; } 50% { opacity: 0.1; } 100% { opacity: 0.3; } }
+
+        /* Nút bấm */
+        .android-btn { background: var(--android-blue); color: white; border: none; padding: 12px; border-radius: 24px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; font-size: 14px; }
+        .btn-group { display: flex; gap: 10px; width: 100%; }
+        .btn-decline { background: var(--danger-red); }
+        .btn-accept { background: var(--success-green); }
+
+        /* Các lớp phủ kết quả */
+        .dialog-overlay { background: rgba(0,0,0,0.85); position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 40; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; }
+        .money-drain { color: var(--danger-red); font-size: 30px; font-weight: bold; margin: 20px 0; font-family: monospace; }
+        .law-box { background: #fff8e1; color: #5c4100; padding: 12px; border-left: 4px solid #ffb300; border-radius: 4px; font-size: 13px; text-align: left; margin-top: 15px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="phone-mockup">
+    <div class="status-bar">
+        <span>09:41</span>
+        <span>📶 🔋 95%</span>
+    </div>
+
+    <div class="screen-content" id="main-screen">
+        <!-- MENU CHÍNH -->
+        <div id="menu-screen">
+            <div style="text-align:center; font-size: 32px;">🛡️</div>
+            <div class="menu-title">Mô phỏng Bẫy Lừa Đảo<br><span style="font-size:11px; color:#aaa; text-transform:none;">Hãy chọn một kịch bản để thử thách bản thân</span></div>
+            
+            <div class="menu-btn" onclick="startAppOpener()">
+                <b>TH1: Giả danh Cơ quan chức năng</b>
+                Dụ dỗ nâng cấp VNeID hoặc cài app Dịch vụ công để chiếm quyền điều khiển điện thoại.
+            </div>
+            <div class="menu-btn" onclick="startJobOpener()">
+                <b>TH2: Tuyển dụng "Việc nhẹ lương cao"</b>
+                Làm nhiệm vụ mạng xã hội, thả tim, chốt đơn ảo nhận hoa hồng và cái kết.
+            </div>
+            <div class="menu-btn" onclick="startCallOpener()">
+                <b>TH3: Cuộc gọi Deepfake người thân</b>
+                Giả lập công nghệ AI sao chép gương mặt/giọng nói gọi điện vay tiền khẩn cấp.
+            </div>
+            <div class="menu-btn" onclick="startInvestOpener()">
+                <b>TH4: Đầu tư "Chứng khoán quốc tế"</b>
+                Hướng dẫn mở tài khoản đầu tư lợi nhuận khủng, nạp tiền vào sàn ảo rồi biến mất.
+            </div>
+            <div class="menu-btn" onclick="startRomanceOpener()">
+                <b>TH5: Bẫy tình cảm (Lừa đảo hẹn hò)</b>
+                Người yêu quen qua mạng xây dựng lòng tin lâu dài, rồi dụ dỗ "cùng nhau góp vốn".
+            </div>
+        </div>
+
+        <!-- CHI TIẾT KỊCH BẢN 1: APP GIẢ MẠO -->
+        <div id="scen-app" style="display:none;" class="chat-container">
+            <div class="chat-bubble"><b>[CÁN BỘ ĐỀ ÁN 06]</b>:<br>Hồ sơ định danh của anh/chị bị lỗi hệ thống. Nhấp vào link này để tải app của Cục Cảnh sát quản lý hành chính để cập nhật lại ngay, nếu không tài khoản ngân hàng sẽ bị khóa: 
+                <span class="download-link" onclick="triggerOverlay('app-permission')">dichvucong.gov-cantho.com/tai-app</span>
+            </div>
+        </div>
+
+        <!-- CHI TIẾT KỊCH BẢN 2: VIỆC NHẸ LƯƠNG CAO -->
+        <div id="scen-job" style="display:none;" class="chat-container">
+            <div class="chat-bubble"><b>[CSKH SHOPEE]</b>:<br>Chào bạn, công ty đang tuyển CTV để tăng tương tác. Bạn chỉ cần nạp <b>500.000 đ</b> để mua đơn hàng mẫu, hệ thống sẽ trả lại bạn <b>600.000 đ</b> (lời 100k) sau 3 phút. Bạn có muốn làm không?</div>
+            <button class="android-btn" id="job-btn-1" onclick="jobProgress(1)">Đồng ý, chuyển thử 500.000 đ</button>
+            
+            <div class="chat-bubble user-bubble" id="job-user-1" style="display:none;">Đã chuyển 500k.</div>
+            <div class="chat-bubble" id="job-reply-1" style="display:none;"><b>[CSKH SHOPEE]</b>: Hoàn thành tốt! Hệ thống đã cộng 600k vào số dư ảo của bạn. Bây giờ là nhiệm vụ VIP cuối cùng: Nạp <b>30.000.000 đ</b> để rút toàn bộ gốc lẫn lãi 40.000.000 đ. Nếu không nạp, tài khoản sẽ bị đóng băng vĩnh viễn!</div>
+            <button class="android-btn" id="job-btn-2" style="display:none;" onclick="jobProgress(2)">Nạp nốt 30 triệu để rút tiền ra</button>
+        </div>
+        
+        <!-- BỔ SUNG MỚI: KỊCH BẢN 4 (ĐẦU TƯ) -->
+        <div id="scen-invest" style="display:none;" class="chat-container">
+            <div class="chat-bubble"><b>[CHUYÊN GIA TÀI CHÍNH]</b>:<br>Thị trường vàng/tiền ảo đang bay cao. Chỉ với số vốn 50 triệu, tài khoản của bạn sẽ nhân 3 sau 1 tuần. Mời bạn tham gia vào nhóm VIP qua link dưới đây.</div>
+            <button class="android-btn" onclick="triggerOverlay('hack-invest')">Nhấn vào để tham gia nhóm đầu tư</button>
+        </div>
+
+        <!-- BỔ SUNG MỚI: KỊCH BẢN 5 (BẪY TÌNH) -->
+        <div id="scen-romance" style="display:none;" class="chat-container">
+            <div class="chat-bubble"><b>[NGƯỜI YÊU ONLINE]</b>:<br>Anh/em à, mình đã yêu nhau 3 tháng rồi. Em tìm được dự án đầu tư này cực tốt cho tương lai hai đứa mình. Chỉ cần anh/em nạp vốn vào sàn này, chúng mình sẽ sớm có tiền làm đám cưới.</div>
+            <button class="android-btn" onclick="triggerOverlay('hack-romance')">Tin tưởng và chuyển tiền cho "người yêu"</button>
+        </div>
+    </div>
+
+    <!-- CHI TIẾT KỊCH BẢN 3: CUỘC GỌI DEEPFAKE (NẰM LỚP RIÊNG) -->
+    <div class="video-call-screen" id="scen-call">
+        <div>
+            <div class="caller-avatar">👤<div class="glitch-effect"></div></div>
+            <h3 style="margin: 5px 0;">"MẸ YÊU 🏠"</h3>
+            <p style="color: #6cff07; font-size: 13px; margin: 0;">Cuộc gọi video đang kết nối (Tín hiệu yếu...)</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; font-size: 13px; line-height: 1.4; text-align: left;">
+            🔊 <b>Tiếng thoại qua loa nghe nghẹt, giật lag:</b> "Con ơi... mẹ đang đi chợ thì quẹt xe trúng người ta... người ta đang giữ mẹ ở bệnh viện bắt đền gấp 15 triệu để mổ... Con chuyển tiền gấp vào số tài khoản bác sĩ này hộ mẹ với..."
+        </div>
+        <div class="btn-group">
+            <button class="android-btn btn-decline" onclick="backToMenu()">Tắt máy, gọi lại số thường</button>
+            <button class="android-btn btn-accept" onclick="triggerOverlay('hack-call')">Chuyển tiền cấp cứu ngay</button>
+        </div>
+    </div>
+
+    <!-- ==================== CÁC LỚP PHỦ HẬU QUẢ VÀ BÀI HỌC ==================== -->
+    
+    <!-- Lớp phủ 1: Xin quyền Trợ năng (Kịch bản 1) -->
+    <div class="dialog-overlay" id="overlay-app-permission" style="justify-content: flex-end;">
+        <div style="background: #303134; padding: 20px; border-radius: 24px; width: 100%; text-align: left;">
+            <h4 style="margin:0 0 10px 0; color:#fff;">Cấp quyền Trợ năng (Accessibility)?</h4>
+            <p style="font-size: 13px; color:#ccc; margin-bottom: 20px;">Cấp quyền này cho phép ứng dụng đọc toàn bộ màn hình và tự động nhấn nút thay thế bạn.</p>
+            <button class="android-btn btn-decline" onclick="triggerOverlay('hack-app')">Kích hoạt / Cho phép</button>
+        </div>
+    </div>
+
+    <!-- Lớp phủ sập bẫy Kịch bản 1 -->
+    <div class="dialog-overlay" id="overlay-hack-app">
+        <div style="font-size: 40px;">⚠️</div>
+        <h3 style="color:var(--danger-red); margin:10px 0;">ĐIỆN THOẠI BỊ CHIẾM QUYỀN</h3>
+        <p style="font-size:12px; color:#aaa;">Mã độc đang âm thầm tự động mở app ngân hàng, đọc trộm mã OTP qua SMS và thực hiện lệnh chuyển tiền chạy ngầm...</p>
+        <div class="money-drain" id="drain-money-1">- 0 đ</div>
+        <div class="law-box"><b>🛡️ CẢNH BÁO:</b> Không bao giờ tải app qua các link lạ (đuôi .apk). Cơ quan Công an chỉ hướng dẫn cài VNeID trực tiếp trên CH Play hoặc App Store và KHÔNG BAO GIỜ làm việc qua Zalo/điện thoại.</div>
+        <button class="android-btn" style="background:#fff; color:#000;" onclick="backToMenu()">Quay lại Menu</button>
+    </div>
+
+    <!-- Lớp phủ sập bẫy Kịch bản 2 -->
+    <div class="dialog-overlay" id="overlay-hack-job">
+        <div style="font-size: 40px;">❌</div>
+        <h3 style="color:var(--danger-red); margin:10px 0;">BẠN ĐÃ BỊ CHẶN LIÊN LẠC</h3>
+        <p style="font-size:12px; color:#aaa;">Sau khi bạn chuyển số tiền lớn, đối tượng lập tức xóa tài khoản Telegram/Zalo, kích bạn ra khỏi nhóm nhiệm vụ. Số tiền biến mất vĩnh viễn.</p>
+        <div class="money-drain" style="color:#ff8a80;">MẤT TRẮNG: 30.500.000 đ</div>
+        <div class="law-box"><b>🛡️ CẢNH BÁO:</b> Không có công việc trực tuyến nào dễ dàng mà nhận lương cao. Bản chất là chúng thả con tép để câu con tôm.</div>
+        <button class="android-btn" style="background:#fff; color:#000;" onclick="backToMenu()">Quay lại Menu</button>
+    </div>
+
+    <!-- Lớp phủ sập bẫy Kịch bản 3 -->
+    <div class="dialog-overlay" id="overlay-hack-call">
+        <div style="font-size: 40px;">💸</div>
+        <h3 style="color:var(--danger-red); margin:10px 0;">SẬP BẪY DEEPFAKE AI</h3>
+        <p style="font-size:12px; color:#aaa;">Bạn vừa chuyển tiền vào số tài khoản của kẻ lừa đảo. Người thân của bạn thực chất vẫn an toàn.</p>
+        <div class="money-drain">- 15.000.000 đ</div>
+        <div class="law-box"><b>🛡️ CẢNH BÁO:</b> Khi nhận cuộc gọi chuyển tiền gấp, hãy dập máy và **gọi lại bằng số điện thoại di động thông thường** để xác minh.</div>
+        <button class="android-btn" style="background:#fff; color:#000;" onclick="backToMenu()">Quay lại Menu</button>
+    </div>
+
+    <!-- Lớp phủ Kịch bản 4 -->
+    <div class="dialog-overlay" id="overlay-hack-invest">
+        <div style="font-size: 40px;">📉</div>
+        <h3 style="color:var(--danger-red); margin:10px 0;">SÀN ĐẦU TƯ "ẢO"</h3>
+        <p style="font-size:12px; color:#aaa;">Con số "lợi nhuận" trên màn hình chỉ là con số giả. Khi bạn muốn rút tiền, chúng sẽ yêu cầu nộp thêm thuế hoặc phí bảo lãnh rồi chặn liên lạc.</p>
+        <div class="money-drain">- 50.000.000 đ</div>
+        <button class="android-btn" style="background:#fff; color:#000;" onclick="backToMenu()">Quay lại Menu</button>
+    </div>
+
+    <!-- Lớp phủ Kịch bản 5 -->
+    <div class="dialog-overlay" id="overlay-hack-romance">
+        <div style="font-size: 40px;">💔</div>
+        <h3 style="color:var(--danger-red); margin:10px 0;">LỪA ĐẢO TÌNH CẢM</h3>
+        <p style="font-size:12px; color:#aaa;">Đây là thủ đoạn "lừa đảo đầu tư qua app hẹn hò". Đối tượng không có thật, chỉ là công cụ để rút sạch tiền tiết kiệm của bạn sau khi lấy được lòng tin.</p>
+        <div class="money-drain">- 200.000.000 đ</div>
+        <button class="android-btn" style="background:#fff; color:#000;" onclick="backToMenu()">Quay lại Menu</button>
+    </div>
+
+</div>
+
+<script>
+    function startAppOpener() { toggleScreen('scen-app'); }
+    function startJobOpener() { toggleScreen('scen-job'); }
+    function startCallOpener() { document.getElementById('scen-call').style.display = 'flex'; }
+    function startInvestOpener() { toggleScreen('scen-invest'); }
+    function startRomanceOpener() { toggleScreen('scen-romance'); }
+
+    function toggleScreen(id) {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById(id).style.display = 'flex';
+    }
+
+    function jobProgress(step) {
+        if(step === 1) {
+            document.getElementById('job-btn-1').style.display = 'none';
+            document.getElementById('job-user-1').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('job-reply-1').style.display = 'block';
+                document.getElementById('job-btn-2').style.display = 'block';
+            }, 1000);
+        } else if(step === 2) {
+            triggerOverlay('hack-job');
+        }
+    }
+
+    function triggerOverlay(type) {
+        const overlays = document.querySelectorAll('.dialog-overlay');
+        overlays.forEach(ol => ol.style.display = 'none');
+        document.getElementById('overlay-' + type).style.display = 'flex';
+        
+        if(type === 'hack-app') {
+            let stolen = 0;
+            const interval = setInterval(() => {
+                stolen += 2345678;
+                if(stolen >= 68000000) { stolen = 68000000; clearInterval(interval); }
+                document.getElementById('drain-money-1').innerText = "-" + stolen.toLocaleString('vi-VN') + " đ";
+            }, 60);
+        }
+    }
+
+    function backToMenu() {
+        document.querySelectorAll('.chat-container').forEach(el => el.style.display = 'none');
+        document.getElementById('scen-call').style.display = 'none';
+        document.querySelectorAll('.dialog-overlay').forEach(ol => ol.style.display = 'none');
+        document.getElementById('menu-screen').style.display = 'block';
+        // Reset job
+        document.getElementById('job-btn-1').style.display = 'block';
+        document.getElementById('job-user-1').style.display = 'none';
+        document.getElementById('job-reply-1').style.display = 'none';
+        document.getElementById('job-btn-2').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
