@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
 
+        /* Cấu trúc phần Parallax */
+        .parallax-section {
+            position: relative;
+            height: 100vh; /* Chiều cao toàn màn hình */
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Lớp phủ làm tối ảnh để chữ dễ đọc hơn */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .text-box {
+            position: relative;
+            z-index: 1;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        /* Nội dung văn bản giữa các phần */
+        .content-block {
+            padding: 80px 15%;
+            background: #f9f9f9;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        h1 { font-size: 3rem; }
+    </style>
+</head>
+<body>
+
+    <!-- PHẦN 1: TIÊU ĐỀ -->
+    <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000');">
+        <div class="overlay"></div>
+        <div class="text-box">
+            <h1>Kế hoạch phát triển dữ liệu Cần Thơ</h1>
+            <p>Đến năm 2030</p>
+        </div>
+    </div>
+
+    <div class="content-block">
+        <h2>I. Mục đích</h2>
+        <p>Khai phá tiềm năng dữ liệu để phục vụ chính quyền, cung cấp dịch vụ thân thiện cho người dân và đổi mới sáng tạo toàn diện. Xây dựng nhận thức thống nhất về dữ liệu làm nền tảng cho đô thị thông minh.</p>
+    </div>
+
+    <!-- PHẦN 2: HẠ TẦNG -->
+    <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2000');">
+        <div class="overlay"></div>
+        <div class="text-box">
+            <h2>Hạ tầng & Nền tảng dữ liệu</h2>
+        </div>
+    </div>
+
+    <div class="content-block">
+        <h2>II. Mục tiêu đến năm 2030</h2>
+        <ul>
+            <li>Hoàn thiện Trung tâm dữ liệu thành phố đạt chuẩn quốc gia[cite: 1].</li>
+            <li>100% hệ thống thông tin sở, ban, ngành được liên thông qua nền tảng LGSP[cite: 1].</li>
+            <li>Hình thành Nền tảng giám sát điều hành thông minh (IOC) cấp thành phố[cite: 1].</li>
+        </ul>
+    </div>
+
+    <!-- PHẦN 3: KINH TẾ SỐ -->
+    <div class="parallax-section" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2000');">
+        <div class="overlay"></div>
+        <div class="text-box">
+            <h2>Phát triển Kinh tế & Xã hội số</h2>
+        </div>
+    </div>
+
+    <div class="content-block">
+        <h2>III. Nhiệm vụ trọng tâm</h2>
+        <p>Dữ liệu giao thông, nông nghiệp và y tế sẽ được số hóa toàn diện. Đặc biệt, 100% sản phẩm OCOP được gắn mã truy xuất nguồn gốc[cite: 1]. An toàn thông tin được đảm bảo theo mô hình bảo vệ 4 lớp[cite: 1].</p>
+    </div>
+
+</body>
+</html>
