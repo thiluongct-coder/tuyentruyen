@@ -1,1 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Tương Tác Điểm Mù - Phiên Bản Nghiệp Vụ Thực Chiến</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .zone-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .act-danger {
+            background-color: rgba(225, 29, 72, 0.85) !important;
+            color: white !important;
+            border-color: rgb(225, 29, 72) !important;
+            box-shadow: 0 0 12px rgba(225, 29, 72, 0.6);
+        }
+        .act-safe {
+            background-color: rgba(34, 197, 94, 0.85) !important;
+            color: white !important;
+            border-color: rgb(34, 197, 94) !important;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-black text-amber-400 uppercase tracking-wide">
+                    <i class="fa-solid fa-eye-slash text-rose-500 mr-2"></i>Ứng Dụng Tra Cứu Tầm Nhìn Phòng Tai Nạn
+                </h1>
+                <p class="text-xs text-slate-400 mt-0.5">Cập nhật: Đã bổ sung Chế độ mô phỏng tình huống động (Ôm cua / Văng đuôi) giữ nguyên tính năng cũ</p>
+            </div>
+            
+            <div class="bg-slate-900 p-1 rounded-xl border border-slate-700 flex">
+                <button onclick="toggleTab('road')" id="btn-tab-road" class="px-4 py-1.5 text-xs font-bold rounded-lg transition bg-amber-500 text-slate-950">
+                    <i class="fa-solid fa-truck mr-1"></i> 1. Đường Bộ
+                </button>
+                <button onclick="toggleTab('water')" id="btn-tab-water" class="px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-ship mr-1"></i> 2. Đường Thủy
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <div class="lg:col-span-7 bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl min-h-[520px] flex flex-col justify-center items-center relative">
+            
+            <div id="model-title" class="absolute top-4 left-6 text-xs font-bold text-slate-400 uppercase tracking-widest border-l-2 border-amber-500 pl-2">
+                Mô hình: Xe Đầu Kéo Container
+            </div>
+
+            <div class="relative w-[360px] h-[440px] mt-8 flex items-center justify-center">
+                
+                <div id="core-vehicle" class="absolute z-20 select-none pointer-events-none"></div>
+
+                <div id="btn-pos-1" class="absolute top-0 left-[95px] w-[170px] z-30"></div>
+                <div id="btn-pos-2" class="absolute top-[65px] left-[95px] w-[170px] z-30"></div>
+                
+                <div id="btn-pos-3" class="absolute top-[165px] left-[95px] w-[45px] z-30"></div>
+                <div id="btn-pos-4" class="absolute top-[165px] left-0 w-[85px] z-30"></div>
+                <div id="btn-pos-5" class="absolute top-[165px] right-[95px] w-[45px] z-30"></div>
+                <div id="btn-pos-6" class="absolute top-[165px] right-0 w-[85px] z-30"></div>
+
+                <div id="btn-pos-9" class="absolute bottom-[115px] left-[40px] w-[90px] z-30"></div>
+                <div id="btn-pos-10" class="absolute bottom-[115px] right-[40px] w-[90px] z-30"></div>
+
+                <div id="btn-pos-7" class="absolute bottom-[60px] left-[95px] w-[170px] z-30"></div>
+                <div id="btn-pos-8" class="absolute bottom-0 left-[95px] w-[170px] z-30"></div>
+
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-4 min-h-[520px]">
+            
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl flex-grow flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-bold text-amber-400 border-b border-slate-700 pb-2 mb-4">
+                        <i class="fa-solid fa-comment-dots mr-2"></i>Thông tin phân tích chi tiết
+                    </h2>
+
+                    <div id="panel-blank" class="text-center py-16 text-slate-500 space-y-2">
+                        <i class="fa-solid fa-arrow-pointer text-3xl block text-slate-600 animate-pulse"></i>
+                        <p class="text-xs">Bấm trực tiếp vào các ô chữ màu viền đứt đoạn xung quanh phương tiện hoặc chọn tình huống động bên dưới.</p>
+                    </div>
+
+                    <div id="panel-data" class="hidden space-y-4">
+                        <div id="res-badge" class="inline-block text-xs font-black uppercase px-2.5 py-1 rounded-md">STATUS</div>
+                        <div>
+                            <span class="text-[11px] text-slate-400 block font-bold uppercase">Nhận diện tầm nhìn:</span>
+                            <p id="res-sight" class="text-xs md:text-sm text-slate-100 font-medium leading-relaxed"></p>
+                        </div>
+                        <div id="res-alert-box" class="p-3 border-l-4 rounded-r-xl text-xs space-y-1">
+                            <strong class="block text-xs uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Cảnh báo phòng tránh:</strong>
+                            <p id="res-advice" class="leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-2 mt-4 rounded-xl border border-slate-700/50 flex justify-around text-[10px] font-bold">
+                    <span class="text-rose-400"><i class="fa-solid fa-circle mr-1"></i>Viền Đỏ = Nguy Hiểm</span>
+                    <span class="text-emerald-400"><i class="fa-solid fa-circle mr-1"></i>Viền Xanh = Nhìn Thấy</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 shadow-xl">
+                <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest mb-3 flex items-center">
+                    <i class="fa-solid fa-route text-cyan-400 mr-2 animate-bounce"></i> Mô phỏng tình huống hành trình động
+                </h3>
+                
+                <div id="dynamic-scenario-box" class="grid grid-cols-1 gap-2">
+                    </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-950 text-slate-500 text-[10px] py-2 text-center border-t border-slate-850">
+        Hệ thống dữ liệu chuẩn hóa • Phục vụ công tác tuyên truyền chuyên biệt Luật GTĐB & GTĐTNĐ.
+    </footer>
+
+    <script>
+        const ROAD_MODEL = {
+            "title": "Mô hình: Xe Đầu Kéo Container (Đường bộ)",
+            "center_vehicle_html": `
+                <div class="w-[66px] h-[170px] bg-slate-600 rounded border-2 border-slate-400 flex flex-col justify-between shadow-2xl">
+                    <div class="h-[45px] bg-amber-500 rounded-t-sm border-b-4 border-slate-700 flex flex-col justify-center items-center text-[10px] font-black text-slate-900">CABIN<div class="w-full h-1 bg-sky-200 mt-0.5"></div></div>
+                    <div class="flex-grow bg-slate-500 flex items-center justify-center text-[9px] font-bold text-slate-800 tracking-widest uppercase [writing-mode:vertical-lr]">CONTAINER</div>
+                    <div class="h-3 bg-slate-700 rounded-b-sm"></div>
+                </div>
+            `,
+            "slots": {
+                "btn-pos-1": { "id": "r1", "type": "safe", "name": "👁️ Trước xa (Nhìn tốt)", "badge": "AN TOÀN: TRƯỚC TẦM XA", "sight": "Tài xế quan sát trực diện rất rõ qua kính chắn gió lớn phía trước cabin xe.", "advice": "Vị trí lái xe an toàn, tuy nhiên hạn chế tạt đầu xi-nhan khẩn cấp vì xe container tải trọng lớn cần khoảng hành trình phanh rất dài." },
+                "btn-pos-2": { "id": "r2", "type": "danger", "name": "⚠️ Mù gầm trước mũi", "badge": "ĐIỂM MÙ: SÁT MŨI XE", "sight": "Cabin xe quá cao tạo ra một khoảng khuất tầm mắt ngay sát dưới lưới tản nhiệt phía trước đầu xe.", "advice": "Không đứng chờ đèn đỏ hoặc di chuyển quá sát ngay trước đầu xe container. Khoảng cách an toàn tối thiểu là 3 mét." },
+                "btn-pos-3": { "id": "r3", "type": "danger", "name": "⚠️ Mù sát sườn", "badge": "ĐIỂM MÙ: SÁT THÂN TRÁI", "sight": "Vùng không gian kẹp sát sườn xe, nằm thấp dưới tầm quét góc của gương chiếu hậu bên trái cabin.", "advice": "Tuyệt đối không đi xe máy kẹp sát sườn xe container. Xe tải nặng khi đánh lái nhẹ cũng có thể ép ngã phương tiện nhỏ lọt vào gầm bánh sau." },
+                "btn-pos-4": { "id": "r4", "type": "safe", "name": "👁️ Xa sườn trái", "badge": "AN TOÀN: XA HÔNG TRÁI", "sight": "Khi di chuyển cách xa hông xe từ 1 đến 2 làn đường, phương tiện sẽ lọt vào đúng tâm quét phản chiếu của gương phẳng sườn cabin.", "advice": "Vị trí thích hợp để đi song song tầm xa hoặc chuẩn bị phát tín hiệu trước khi vượt." },
+                "btn-pos-5": { "id": "r5", "type": "danger", "name": "⚠️ Mù sát sườn", "badge": "ĐIỂM MÙ: SÁT THÂN PHẢI (BÊN PHỤ)", "sight": "Do lái xe ngồi lệch bên trái, vùng sát sườn phải này cực kỳ xa tầm mắt và là điểm mù diện tích lớn, nguy hiểm nhất quanh xe.", "advice": "Cấm chen lấn đi vào khe hẹp sát sườn phải xe container tại các giao lộ rẽ phải. Khi xe ôm cua, đuôi xe di chuyển quẹt rộng sẽ ép chết phương tiện nhỏ." },
+                "btn-pos-6": { "id": "r6", "type": "safe", "name": "👁️ Xa sườn phải", "badge": "AN TOÀN: XA HÔNG PHẢI", "sight": "Khoảng cách cách xa hông xe bên phải từ 2 làn đường trở lên, tài xế vẫn có thể bao quát được bạn qua hệ thống gương cầu lồi bổ sung.", "advice": "Giữ khoảng cách chiều ngang rộng ra để luôn đảm bảo an toàn hành trình." },
+                "btn-pos-9": { "id": "r9", "type": "safe", "name": "👁️ Gương trái thấy", "badge": "AN TOÀN: GÓC CHÉO SAU ĐUÔI (GƯƠNG TRÁI QUÉT TỚI)", "sight": "Tại góc chéo áp sát hông sau này, luồng nhìn phản chiếu qua gương chiếu hậu sườn trái của cabin bắt trọn vẹn hình ảnh phương tiện của bạn.", "advice": "Đây là vị trí an toàn lý tưởng nhất khi bám đuôi chuẩn bị xin vượt. Hãy giữ xe ở góc chéo này để tài xế thấy bạn qua gương sườn trái trước khi bấm còi/nháy đèn xin vượt." },
+                "btn-pos-10": { "id": "r10", "type": "safe", "name": "👁️ Gương phải thấy", "badge": "AN TOÀN: GÓC CHÉO SAU ĐUÔI (GƯƠNG PHẢI QUÉT TỚI)", "sight": "Góc chéo sườn sau bên phải. Hệ thống gương sườn phải bắt được hình ảnh xe từ góc chéo cận hông thùng này.", "advice": "Mặc dù gương phụ quét tới được vị trí này, người lái xe nhỏ vẫn nên giữ khoảng cách, phòng trường hợp xe lớn bất ngờ chuyển làn rẽ phải gấp." },
+                "btn-pos-7": { "id": "r7", "type": "danger", "name": "⚠️ Mù sát đuôi xe", "badge": "ĐIỂM MÙ: SÁT ĐUÔI THÙNG TRỰC DIỆN", "sight": "Thùng thép dài che khuất hoàn toàn tầm nhìn. Xe container không có gương chiếu hậu góc nhìn trung tâm phía sau.", "advice": "Bám sát đuôi xe lớn làm bạn mất toàn bộ tầm nhìn xa phía trước, dễ xảy ra tai nạn dồn toa móp đầu khi xe trước phanh khẩn cấp." },
+                "btn-pos-8": { "id": "r8", "type": "danger", "name": "⚠️ Mù dọc đuôi xa", "badge": "ĐIỂM MÙ: DỌC THẲNG HÀNG XA", "sight": "Dù bạn giữ khoảng cách xa đuôi xe, nhưng nếu đi chính giữa làn thẳng hàng với thùng xe, hệ thống gương sườn hai bên vẫn hoàn toàn bị che khuất.", "advice": "Quy tắc sinh tồn: Tránh đi chính giữa, luôn chạy lệch hẳn sang một bên làn đường (vào vùng quét xanh của gương sườn) sao cho mắt bạn nhìn thấy rõ gương cabin của tài xế." }
+            },
+            // KỊCH BẢN ĐƯỜNG BỘ
+            "scenarios": [
+                {
+                    "name": "🚨 Tình huống: Xe rẽ phải tại ngã tư (Hiệu ứng cắt góc)",
+                    "badge": "NGUY HIỂM: HIỆU ỨNG GỌNG KÌM CẮT GÓC KHI ÔM CUA",
+                    "sight": "Khi xe container ôm cua rẽ phải, toàn bộ các bánh xe phía sau rơ-moóc sẽ bị kéo cắt ngắn góc (ăn gian quỹ đạo) sát sạt vào phía trong vỉa hè từ 1.5m - 2m. Đồng thời, do cabin bẻ lái chéo, tài xế hoàn toàn không thể nhìn thấy bất cứ ai qua hệ thống gương sườn phải lúc này nữa.",
+                    "advice": "TUYỆT ĐỐI KHÔNG chen lấn đứng chờ đèn đỏ kẹp giữa sườn phải xe lớn và vỉa hè tại giao lộ. Khi đuôi xe quét rộng khép góc gọng kìm, bạn sẽ bị ép chết lập tức mà tài xế không hề hay biết.",
+                    "highlight_nodes": ["r5", "r10"] // Kích hoạt đỏ rực các ô này
+                }
+            ]
+        };
+
+        const WATER_MODEL = {
+            "title": "Mô hình: Tàu Chở Hàng / Sà Lan (Đường thủy)",
+            "center_vehicle_html": `
+                <div class="w-[56px] h-[190px] bg-slate-700 rounded-full border-2 border-slate-500 flex flex-col justify-between shadow-2xl">
+                    <div class="h-8 bg-slate-600 rounded-t-full border-b border-slate-600 flex items-center justify-center text-[8px] font-bold text-slate-300">MŨI TÀU</div>
+                    <div class="flex-grow bg-slate-500 flex items-center justify-center text-[9px] font-black text-slate-800 [writing-mode:vertical-lr] tracking-widest">KHOANG HÀNG</div>
+                    <div class="h-[40px] bg-blue-950 rounded-b-md border-t-2 border-slate-900 flex items-center justify-center text-[9px] font-bold text-slate-200">CABIN LÁI</div>
+                </div>
+            `,
+            "slots": {
+                "btn-pos-1": { "id": "w1", "type": "safe", "name": "👁️ Trước xa (Trên 150m)", "badge": "AN TOÀN: TẦM NHÌN XA (TRÊN 150 MÉT)", "sight": "Tại khoảng cách từ 150m trở lên, phương tiện đã vượt ra khỏi góc khuất của mũi tàu. Thuyền trưởng ngồi trong cabin sau lái có thể nhìn thấy rõ ràng từ xa.", "advice": "Khi di chuyển phía trước sà lan, hãy giữ khoảng cách tối thiểu 150m để thuyền trưởng kịp thời nhận biết và chủ động điều hướng luồng từ sớm." },
+                "btn-pos-2": { "id": "w2", "type": "danger", "name": "⚠️ Mù trước mũi (<100m)", "badge": "ĐIỂM MÙ: TRƯỚC MŨI TÀU (DƯỚI 100 MÉT)", "sight": "Khi sà lan chất đầy tải hàng hóa, phần mũi tàu nghếch lên cao sẽ che khuất hoàn toàn mặt nước phía trước. Phạm vi dưới 100m tính từ mũi tàu là vùng mù tuyệt đối.", "advice": "Ghe xuồng nhỏ tuyệt đối không cắt ngang sát mũi sà lan lớn đang hành trình. Sà lan có quán tính nước rất lớn, cần 150m-200m mới dừng hẳn, tạt đầu tầm này là tự sát." },
+                "btn-pos-3": { "id": "w3", "type": "danger", "name": "⚠️ Sát mạn trái", "badge": "VÙNG NGUY HIỂM: SÁT MẠN TRÁI", "sight": "Góc nước sát bên hông thân tàu. Khi sà lan hành trình tốc độ cao sẽ tạo ra luồng sóng mạn và áp lực nước đẩy dạt phương tiện nhỏ.", "advice": "Không neo đậu hoặc áp mạn sóng đôi quá gần sà lan lớn đang chạy để tránh bị sóng dập lật úp." },
+                "btn-pos-4": { "id": "w4", "type": "safe", "name": "👁️ Thấy mạn trái xa", "badge": "VÙNG NHÌN THẤY: MẠN TRÁI XA", "sight": "Khoảng không sông nước mạn trái nằm trong tầm mắt bao quát trực diện của thuyền trưởng qua kính đài chỉ huy.", "advice": "Vị trí thích hợp để duy trì hành trình song song ngược chiều an toàn trên luồng thủy." },
+                "btn-pos-5": { "id": "w5", "type": "danger", "name": "⚠️ Sát mạn phải", "badge": "VÙNG NGUY HIỂM: SÁT MẠN PHẢI", "sight": "Khu vực sát bên hông mạn phải sà lan, tiềm ẩn rủi ro khi tàu chuyển hướng đột ngột.", "advice": "Giữ khoảng cách an toàn rộng theo chiều ngang luồng, không đi sát vách thép tàu." },
+                "btn-pos-6": { "id": "w6", "type": "safe", "name": "👁️ Thấy mạn phải xa", "badge": "VÙNG NHÌN THẤY: MẠN PHẢI XA", "sight": "Tầm nhìn thoáng đãng nằm trong tầm quản lý, kiểm soát tốt của cabin tàu phụ lái phía mạn phải.", "advice": "Giữ vững tay lái ổn định tốc độ để hành trình thông suốt luồng lạch." },
+                "btn-pos-9": null, 
+                "btn-pos-10": null,
+                "btn-pos-7": { "id": "w7", "type": "danger", "name": "⚠️ Xoáy nước chân vịt", "badge": "NGUY HIỂM: XOÁY CHÂN VỊT ĐUÔI TÀU", "sight": "Khi tàu lớn tăng tốc hoặc ôm cua chuyển hướng, phần đuôi tàu văng mạnh kèm dòng nước cuộn hút cực mạnh do chân vịt đẩy công suất lớn tạo ra.", "advice": "Ghe xuồng nhỏ nghiêm cấm bám sát sau đuôi sà lan. Lực hút của dòng nước xoáy chân vịt sẽ hút phương tiện nhỏ vào gầm hoặc làm lật úp ghe lập tức." },
+                "btn-pos-8": { "id": "w8", "type": "safe", "name": "👁️ Vệt nước sau xa", "badge": "VÙNG NHÌN THẤY: SAU LÁI TÀU TẦM XA", "sight": "Khoảng vệt nước lưu không phía sau đuôi tàu tầm xa, thuyền trưởng nhìn rất rõ mùng một qua hệ thống cửa sổ sau đài chỉ huy.", "advice": "Phương tiện nhỏ đi sau nên đi ở khoảng này, giữ khoảng cách để có thời gian phản xạ, đồng thời chú ý sóng đuôi tròng trành." }
+            },
+            // KỊCH BẢN ĐƯỜNG THỦY
+            "scenarios": [
+                {
+                    "name": "🚨 Tình huống: Sà lan ôm cua bẻ lái (Hiệu ứng văng đuôi)",
+                    "badge": "CỰC NGUY HIỂM: HIỆU ỨNG VĂNG ĐUÔI QUÁN TÍNH NƯỚC",
+                    "sight": "Phương tiện thủy lái bằng bánh lái đặt ở đuôi. Khi sà lan bẻ lái để mũi rẽ sang trái, hệ thống đẩy sẽ ép toàn bộ phần đuôi tàu nặng hàng trăm tấn văng cực mạnh theo chiều ngược lại (văng sang phải) với lực càn quét dòng nước vô cùng lớn.",
+                    "advice": "Khi thấy sà lan ôm cua ở khúc sông hẹp, các phương tiện nhỏ tuyệt đối không neo đậu đón lõng ở phía hướng văng chéo của đuôi tàu trong phạm vi 30m. Khối thép đuôi văng ra sẽ quẹt lật úp hoặc ép nát xuồng ghe vào bờ lạch.",
+                    "highlight_nodes": ["w7"] 
+                }
+            ]
+        };
+
+        let activeTab = "road";
+
+        function loadModel() {
+            const currentData = activeTab === "road" ? ROAD_MODEL : WATER_MODEL;
+            document.getElementById('model-title').innerText = currentData.title;
+            document.getElementById('core-vehicle').innerHTML = currentData.center_vehicle_html;
+
+            // Nạp lưới 10 ô nút bấm tĩnh (giữ nguyên gốc)
+            const positionIds = ["btn-pos-1", "btn-pos-2", "btn-pos-3", "btn-pos-4", "btn-pos-5", "btn-pos-6", "btn-pos-7", "btn-pos-8", "btn-pos-9", "btn-pos-10"];
+            positionIds.forEach(posId => {
+                const container = document.getElementById(posId);
+                container.innerHTML = ""; 
+
+                const slotData = currentData.slots[posId];
+                if (slotData) {
+                    const borderStyle = slotData.type === 'danger' ? 'border-rose-500/50 text-rose-400 bg-rose-950/10 hover:bg-rose-900/30' : 'border-emerald-500/50 text-emerald-400 bg-emerald-950/10 hover:bg-emerald-900/30';
+                    container.innerHTML = `
+                        <button onclick="selectZone('${posId}', '${slotData.id}')" id="btn-node-${slotData.id}" class="zone-btn w-full py-1 px-1 border border-dashed rounded-lg text-[10px] font-bold text-center bg-slate-900 transition shadow ${borderStyle}">
+                            ${slotData.name}
+                        </button>
+                    `;
+                }
+            });
+
+            // TỰ ĐỘNG NẠP KHU VỰC TÌNH HUỐNG ĐỘNG Ở DƯỚI BẢNG ĐIỀU KHIỂN
+            const scenarioBox = document.getElementById('dynamic-scenario-box');
+            scenarioBox.innerHTML = "";
+            currentData.scenarios.forEach((scen, index) => {
+                scenarioBox.innerHTML += `
+                    <button onclick="triggerScenario(${index})" class="w-full text-left p-2.5 rounded-xl border border-cyan-500/40 bg-cyan-950/20 hover:bg-cyan-950/50 text-cyan-400 text-xs font-bold transition cursor-pointer flex items-center justify-between">
+                        <span>${scen.name}</span>
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                    </button>
+                `;
+            });
+
+            document.getElementById('panel-blank').classList.remove('hidden');
+            document.getElementById('panel-data').classList.add('hidden');
+        }
+
+        function toggleTab(tabType) {
+            activeTab = tabType;
+            const btnRoad = document.getElementById('btn-tab-road');
+            const btnWater = document.getElementById('btn-tab-water');
+
+            btnRoad.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+            btnWater.className = "px-4 py-1.5 text-xs font-bold rounded-lg transition text-slate-400 hover:text-white cursor-pointer";
+
+            if (tabType === 'road') {
+                btnRoad.classList.add('bg-amber-500', 'text-slate-950');
+            } else {
+                btnWater.classList.add('bg-blue-500', 'text-white');
+            }
+            loadModel();
+        }
+
+        function selectZone(posId, id) {
+            const currentData = activeTab === "road" ? ROAD_MODEL : WATER_MODEL;
+            clearAllHighlights();
+
+            const selectedNode = currentData.slots[posId];
+            const btnTarget = document.getElementById(`btn-node-${id}`);
+            if (selectedNode.type === 'danger') {
+                btnTarget.classList.add('act-danger');
+            } else {
+                btnTarget.classList.add('act-safe');
+            }
+
+            renderPanelInfo(selectedNode.type, selectedNode.badge, selectedNode.sight, selectedNode.advice);
+        }
+
+        // HÀM MỚI: Kích hoạt mô phỏng tình huống động, làm rực đồng thời các nút nguy hiểm liên đới
+        function triggerScenario(index) {
+            const currentData = activeTab === "road" ? ROAD_MODEL : WATER_MODEL;
+            const scenario = currentData.scenarios[index];
+            
+            clearAllHighlights();
+
+            // Quét và kích hoạt nhấp nháy đỏ toàn bộ cụm ô bị ảnh hưởng bởi khúc cua
+            scenario.highlight_nodes.forEach(nodeId => {
+                const el = document.getElementById(`btn-node-${nodeId}`);
+                if (el) el.classList.add('act-danger');
+            });
+
+            renderPanelInfo('danger', scenario.badge, scenario.sight, scenario.advice);
+        }
+
+        function clearAllHighlights() {
+            const currentData = activeTab === "road" ? ROAD_MODEL : WATER_MODEL;
+            for (let key in currentData.slots) {
+                const node = currentData.slots[key];
+                if (node) {
+                    const el = document.getElementById(`btn-node-${node.id}`);
+                    if (el) el.classList.remove('act-danger', 'act-safe');
+                }
+            }
+        }
+
+        function renderPanelInfo(type, badgeText, sightText, adviceText) {
+            document.getElementById('panel-blank').classList.add('hidden');
+            const panelData = document.getElementById('panel-data');
+            panelData.classList.remove('hidden');
+
+            const badge = document.getElementById('res-badge');
+            const alertBox = document.getElementById('res-alert-box');
+
+            if (type === 'danger') {
+                badge.className = "inline-block text-xs font-black uppercase px-2.5 py-1 rounded-md bg-rose-600 text-white animate-pulse";
+                alertBox.className = "p-3 border-l-4 border-rose-500 bg-rose-950/50 text-xs space-y-1 text-rose-200";
+            } else {
+                badge.className = "inline-block text-xs font-black uppercase px-2.5 py-1 rounded-md bg-emerald-600 text-white";
+                alertBox.className = "p-3 border-l-4 border-emerald-500 bg-emerald-950/50 text-xs space-y-1 text-emerald-200";
+            }
+
+            badge.innerText = badgeText;
+            document.getElementById('res-sight').innerText = sightText;
+            document.getElementById('res-advice').innerText = adviceText;
+        }
+
+        loadModel();
+    </script>
+</body>
+</html>
