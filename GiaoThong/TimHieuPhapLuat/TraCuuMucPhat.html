@@ -1,1 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra Cứu Vi Phạm Giao Thông - Chuẩn Nghiệp Vụ</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            outline: none;
+            box-sizing: border-box;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            background: white;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .results-container {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #cbd5e1;
+            border-radius: 0 0 12px 12px;
+            background: white;
+            z-index: 1000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .result-item {
+            padding: 12px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-item:hover, .result-item.selected {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .badge-vehicle {
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--accent);
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .summary-box {
+            margin-top: 25px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .summary-item:not(:last-child) {
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #fde047;
+        }
+
+        .extra-forms {
+            font-size: 13px;
+            color: #475569;
+            margin-top: 4px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Tra Cứu Vi Phạm Giao Thông Siêu Tốc</h2>
+    <p class="subtitle">Gõ từ khóa tự do hoặc dùng phím mũi tên lên/xuống và Enter để chọn nhanh</p>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Nhập từ khóa (vd: cồn, tốc độ, vượt đèn đỏ...) hoặc bấm vào đây để xem toàn bộ danh sách..." oninput="onInputChanged()" onkeydown="onKeyDown(event)">
+        <div id="resultsContainer" class="results-container"></div>
+    </div>
+
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phương tiện</th>
+                    <th>Nội dung hành vi vi phạm</th>
+                    <th class="text-right">Mức phạt tiền (VNĐ)</th>
+                    <th class="text-center">Điểm trừ / Tước GPLX</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr id="emptyRow">
+                    <td colspan="5" class="text-center" style="color: #94a3b8; font-style: italic;">Chưa có hành vi nào được chọn.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="summary-box">
+        <div class="summary-item">
+            <div>Tổng khoảng tiền phạt</div>
+            <div class="summary-value" id="totalMoney">0 VNĐ</div>
+        </div>
+        <div class="summary-item">
+            <div>Tổng điểm trừ GPLX</div>
+            <div class="summary-value" id="totalPoints" style="color: white;">0 điểm</div>
+        </div>
+        <div class="summary-item">
+            <div>Hình thức phạt bổ sung chung</div>
+            <div class="summary-value" id="totalExtra" style="font-size: 13px; font-weight: normal; margin-top: 8px; color: white;">Không có</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Danh sách cơ sở dữ liệu mở rộng
+    const allViolationsDatabase = [
+        { vehicle: "Mô tô, xe máy", name: "Nồng độ cồn chưa vượt quá 50 mg/100ml máu hoặc 0.25 mg/l khí thở", min: 2000000, max: 3000000, points: 2, extra: "Tước GPLX 1 - 3 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Nồng độ cồn vượt quá 50 đến 80 mg/100ml máu hoặc 0.25 đến 0.4 mg/l khí thở", min: 6000000, max: 8000000, points: 4, extra: "Tước GPLX 10 - 12 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Nồng độ cồn vượt quá 80 mg/100ml máu hoặc 0.4 mg/l khí thở (hoặc chống đối)", min: 18000000, max: 20000000, points: 6, extra: "Tước GPLX 22 - 24 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Chạy quá tốc độ quy định từ 05 km/h đến dưới 10 km/h", min: 400000, max: 600000, points: 0, extra: "Không" },
+        { vehicle: "Mô tô, xe máy", name: "Chạy quá tốc độ quy định từ 10 km/h đến 20 km/h", min: 800000, max: 1000000, points: 2, extra: "Tước GPLX 1 - 3 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Chạy quá tốc độ quy định trên 20 km/h", min: 4000000, max: 5000000, points: 4, extra: "Tước GPLX 2 - 4 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Không đội mũ bảo hiểm cho người điều khiển xe", min: 400000, max: 600000, points: 0, extra: "Không" },
+        { vehicle: "Mô tô, xe máy", name: "Không chấp hành hiệu lệnh của đèn tín hiệu giao thông (vượt đèn đỏ)", min: 400000, max: 600000, points: 2, extra: "Tước GPLX 1 - 3 tháng" },
+        { vehicle: "Mô tô, xe máy", name: "Không có Giấy phép lái xe (đối với xe dưới 125cm3)", min: 1000000, max: 2000000, points: 0, extra: "Tạm giữ phương tiện" },
+        { vehicle: "Mô tô, xe máy", name: "Đi ngược chiều của đường một chiều, đi vào đường có biển cấm", min: 1000000, max: 2000000, points: 2, extra: "Tước GPLX 1 - 3 tháng" },
+        
+        { vehicle: "Ô tô", name: "Nồng độ cồn chưa vượt quá 50 mg/100ml máu hoặc 0.25 mg/l khí thở trên ô tô", min: 6000000, max: 8000000, points: 2, extra: "Tước GPLX 10 - 12 tháng" },
+        { vehicle: "Ô tô", name: "Nồng độ cồn vượt quá 50 đến 80 mg/100ml máu hoặc 0.25 đến 0.4 mg/l khí thở trên ô tô", min: 16000000, max: 18000000, points: 4, extra: "Tước GPLX 16 - 18 tháng" },
+        { vehicle: "Ô tô", name: "Nồng độ cồn vượt quá 80 mg/100ml máu hoặc 0.4 mg/l khí thở trên ô tô", min: 30000000, max: 40000000, points: 6, extra: "Tước GPLX 22 - 24 tháng" },
+        { vehicle: "Ô tô", name: "Chạy quá tốc độ quy định từ 05 km/h đến dưới 10 km/h trên ô tô", min: 800000, max: 1000000, points: 0, extra: "Không" },
+        { vehicle: "Ô tô", name: "Chạy quá tốc độ quy định trên 35 km/h trên ô tô", min: 10000000, max: 12000000, points: 6, extra: "Tước GPLX 3 - 5 tháng" },
+        { vehicle: "Ô tô", name: "Không chấp hành hiệu lệnh của đèn tín hiệu giao thông (vượt đèn đỏ) trên ô tô", min: 4000000, max: 6000000, points: 3, extra: "Tước GPLX 1 - 3 tháng" },
+        { vehicle: "Ô tô", name: "Không có Giấy phép lái xe ô tô", min: 10000000, max: 12000000, points: 0, extra: "Tạm giữ phương tiện" },
+        { vehicle: "Ô tô", name: "Dừng, đỗ xe ô tô ở làn dừng xe khẩn cấp của đường cao tốc không có báo hiệu", min: 10000000, max: 12000000, points: 2, extra: "Tước GPLX 2 - 4 tháng" }
+    ];
+
+    let currentFiltered = [];
+    let selectedIndex = -1;
+    let selectedList = [];
+
+    const inputElement = document.getElementById("searchInput");
+    inputElement.addEventListener("focus", function() {
+        filterViolations(true);
+    });
+
+    function onInputChanged() {
+        selectedIndex = -1;
+        filterViolations(false);
+    }
+
+    function filterViolations(showAllIfEmpty) {
+        const keyword = inputElement.value.toLowerCase().trim();
+        const resultsContainer = document.getElementById("resultsContainer");
+        
+        if (keyword === "" && !showAllIfEmpty) {
+            resultsContainer.style.display = "none";
+            return;
+        }
+
+        currentFiltered = allViolationsDatabase.filter(item => 
+            item.name.toLowerCase().includes(keyword) || item.vehicle.toLowerCase().includes(keyword)
+        );
+
+        resultsContainer.innerHTML = "";
+        if (currentFiltered.length === 0) {
+            resultsContainer.style.display = "block";
+            resultsContainer.innerHTML = `<div style="padding: 12px; color: #94a3b8; text-align: center;">Không tìm thấy kết quả phù hợp</div>`;
+            return;
+        }
+
+        resultsContainer.style.display = "block";
+        currentFiltered.forEach((item, idx) => {
+            const div = document.createElement("div");
+            div.className = "result-item" + (idx === selectedIndex ? " selected" : "");
+            div.innerHTML = `
+                <div><span class="badge-vehicle">${item.vehicle}</span> ${item.name}</div>
+                <div style="font-weight: bold; color: var(--accent); white-space: nowrap; margin-left: 10px;">${formatNumber(item.min)} - ${formatNumber(item.max)} đ</div>
+            `;
+            div.onmousedown = (e) => {
+                e.preventDefault();
+                selectItem(idx);
+            };
+            resultsContainer.appendChild(div);
+        });
+    }
+
+    function onKeyDown(e) {
+        const resultsContainer = document.getElementById("resultsContainer");
+        if (resultsContainer.style.display === "none" || currentFiltered.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % currentFiltered.length;
+            updateSelectionUI();
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + currentFiltered.length) % currentFiltered.length;
+            updateSelectionUI();
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (selectedIndex >= 0 && selectedIndex < currentFiltered.length) {
+                selectItem(selectedIndex);
+            }
+        }
+    }
+
+    function updateSelectionUI() {
+        const items = document.querySelectorAll(".result-item");
+        items.forEach((el, idx) => {
+            if (idx === selectedIndex) {
+                el.classList.add("selected");
+                el.scrollIntoView({ block: "nearest" });
+            } else {
+                el.classList.remove("selected");
+            }
+        });
+    }
+
+    function selectItem(idx) {
+        const item = currentFiltered[idx];
+        if (item) {
+            selectedList.push(item);
+            renderTable();
+            inputElement.value = "";
+            document.getElementById("resultsContainer").style.display = "none";
+            selectedIndex = -1;
+        }
+    }
+
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function removeViolation(index) {
+        selectedList.splice(index, 1);
+        renderTable();
+    }
+
+    // Hàm phụ trợ bóc tách số tháng tước lớn nhất để so sánh
+    function extractMaxMonth(extraText) {
+        if (!extraText || !extraText.includes("tháng")) return 0;
+        const matches = extraText.match(/\d+/g);
+        if (!matches || matches.length === 0) return 0;
+        return parseInt(matches[matches.length - 1], 10); // Lấy số ở vế sau (ví dụ "1 - 3 tháng" lấy 3)
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        if (selectedList.length === 0) {
+            tbody.innerHTML = `<tr id="emptyRow"><td colspan="5" class="text-center" style="color: #94a3b8; font-style: italic;">Chưa có hành vi nào được chọn.</td></tr>`;
+            document.getElementById("totalMoney").innerText = "0 VNĐ";
+            document.getElementById("totalPoints").innerText = "0 điểm";
+            document.getElementById("totalExtra").innerText = "Không có";
+            return;
+        }
+
+        let totalMin = 0, totalMax = 0, totalPoints = 0;
+        let maxTucGPLX = { text: "Không", val: -1 };
+        let otherExtras = new Set();
+
+        selectedList.forEach((item, idx) => {
+            totalMin += item.min;
+            totalMax += item.max;
+            totalPoints += item.points;
+
+            if (item.extra && item.extra !== "Không") {
+                if (item.extra.includes("tháng")) {
+                    let monthVal = extractMaxMonth(item.extra);
+                    if (monthVal > maxTucGPLX.val) {
+                        maxTucGPLX.val = monthVal;
+                        maxTucGPLX.text = item.extra;
+                    }
+                } else {
+                    otherExtras.add(item.extra); // Các hình thức khác như tạm giữ phương tiện
+                }
+            }
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><span class="badge-vehicle">${item.vehicle}</span></td>
+                <td>${item.name} <span class="extra-forms"><b>Bổ sung:</b> ${item.extra}</span></td>
+                <td class="text-right" style="font-weight: bold; color: var(--accent);">${formatNumber(item.min)} - ${formatNumber(item.max)}</td>
+                <td class="text-center">${item.points > 0 ? item.points + ' điểm' : 'Không'}</td>
+                <td class="text-center"><button class="btn-delete" onclick="removeViolation(${idx})">Xóa</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Tổng hợp hình thức phạt bổ sung theo đúng nguyên tắc không cộng dồn thời hạn tước
+        let finalExtraArr = [];
+        if (maxTucGPLX.text !== "Không") {
+            finalExtraArr.push(maxTucGPLX.text);
+        }
+        otherExtras.forEach(ex => finalExtraArr.push(ex));
+
+        document.getElementById("totalMoney").innerText = `${formatNumber(totalMin)} - ${formatNumber(totalMax)} VNĐ`;
+        document.getElementById("totalPoints").innerText = `${totalPoints} điểm`;
+        document.getElementById("totalExtra").innerText = finalExtraArr.length > 0 ? finalExtraArr.join("; ") : "Không có";
+    }
+
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".search-box")) {
+            document.getElementById("resultsContainer").style.display = "none";
+        }
+    });
+</script>
+
+</body>
+</html>
