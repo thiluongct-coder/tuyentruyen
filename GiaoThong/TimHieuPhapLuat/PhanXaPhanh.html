@@ -1,1 +1,1007 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mô Phỏng Tổng Hợp: Đường Thủy & Đường Bộ</title>
+    
+    <!-- TÀI NGUYÊN SOURCE 2 (Tailwind & FontAwesome) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- TÀI NGUYÊN SOURCE 1 (Font Roboto) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
 
+        /* =========================================
+           CSS SOURCE 1 (MÔ PHỎNG SÔNG NƯỚC)
+           ========================================= */
+        #water-sim-container {
+            font-family: 'Roboto', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #0f172a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Thay đổi nhỏ để tự động giãn đầy phần màn hình còn lại */
+            overflow: hidden;
+            position: relative;
+        }
+
+        #water-sim-container * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        #water-sim-container .header {
+            padding: 12px;
+            text-align: center;
+            background: #1e293b;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        #water-sim-container .header h1 { color: #facc15; font-size: 1.25rem; margin-bottom: 3px; }
+        #water-sim-container .header p { color: #94a3b8; font-size: 0.8rem; }
+
+        #water-sim-container #hud-panel {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #water-sim-container .hud-box {
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid #334155;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        #water-sim-container .hud-box span { color: #facc15; font-weight: bold; font-size: 1rem; }
+
+        #water-sim-container #simulation-area {
+            flex-grow: 1;
+            position: relative;
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+            overflow: hidden;
+        }
+
+        #water-sim-container #world-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            transform-origin: 75% 50%;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #water-sim-container .water-waves {
+            position: absolute;
+            width: 300%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                90deg, transparent, transparent 50px,
+                rgba(255,255,255,0.1) 50px, rgba(255,255,255,0.1) 100px
+            );
+            animation: flow 4s linear infinite;
+        }
+
+        @keyframes flow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50px); }
+        }
+
+        #water-sim-container #vehicle {
+            position: absolute;
+            left: 15%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 36px;
+            background: #475569;
+            border: 2px solid #334155;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+            z-index: 5;
+            transition: background 0.3s;
+        }
+
+        #water-sim-container #vehicle::after {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-top: 14px solid transparent;
+            border-bottom: 14px solid transparent;
+            border-left: 12px solid #475569;
+        }
+
+        #water-sim-container #alert-banner {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(185, 28, 28, 0.95);
+            border: 2px solid #f87171;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 20;
+            text-align: center;
+            animation: bounce 0.5s infinite alternate;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #water-sim-container #alert-banner h3 { font-size: 1rem; color: #fff; margin-bottom: 2px; }
+        #water-sim-container #alert-banner p { font-size: 0.75rem; color: #fde047; font-weight: bold; }
+
+        @keyframes bounce {
+            from { transform: translateX(-50%) scale(1); }
+            to { transform: translateX(-50%) scale(1.05); }
+        }
+
+        #water-sim-container #control-panel {
+            background: #1e293b;
+            padding: 15px;
+            border-top: 2px solid #334155;
+            z-index: 10;
+        }
+
+        #water-sim-container .control-group { margin-bottom: 10px; }
+
+        #water-sim-container .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        #water-sim-container input[type=range] {
+            width: 100%;
+            height: 6px;
+            background: #475569;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        #water-sim-container input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #facc15;
+            cursor: pointer;
+        }
+
+        #water-sim-container .radio-group { display: flex; gap: 8px; }
+
+        #water-sim-container .radio-btn {
+            flex: 1;
+            padding: 8px;
+            background: #334155;
+            text-align: center;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #cbd5e1;
+        }
+
+        #water-sim-container .radio-btn.active { background: #0369a1; border-color: #38bdf8; color: white; }
+
+        #water-sim-container .btn-action {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        #water-sim-container .btn-start { background: #10b981; color: white; }
+        #water-sim-container .btn-brake { background: #ef4444; color: white; display: none; animation: pulse 0.8s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        #water-sim-container .modal {
+            display: none;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.98);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            width: 90%;
+            max-width: 380px;
+            border: 2px solid #334155;
+            z-index: 100;
+        }
+
+        #water-sim-container .modal h2 { margin-bottom: 10px; font-size: 1.25rem; }
+        #water-sim-container .modal p { color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin-bottom: 15px; text-align: left; }
+        #water-sim-container .highlight-number { color: #facc15; font-weight: bold; font-size: 1.05rem; }
+        #water-sim-container .text-crash { color: #ef4444; }
+        #water-sim-container .text-safe { color: #10b981; }
+
+        /* =========================================
+           CSS SOURCE 2 (MÔ PHỎNG ĐƯỜNG BỘ)
+           ========================================= */
+        .asphalt {
+            background-color: #0f172a;
+            background-image: linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 100%;
+        }
+        @keyframes moveLane {
+            0% { background-position-x: 0px; }
+            100% { background-position-x: -40px; }
+        }
+        .moving-road {
+            background-image: linear-gradient(90deg, #fff 50%, transparent 50%);
+            background-size: 40px 4px;
+            background-repeat: repeat-x;
+            background-position: center;
+            animation: moveLane 0.3s linear infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        .crash-shake {
+            animation: shake 0.5s infinite;
+        }
+    </style>
+</head>
+<body id="main-body" class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-between transition-colors duration-300">
+
+    <!-- KHU VỰC ĐIỀU HƯỚNG CHỌN TAB -->
+    <div class="bg-slate-900 p-3 flex justify-center gap-3 border-b border-slate-800 shadow-md z-50">
+        <button id="tab-btn-water" onclick="switchTab('water')" class="px-5 py-2 rounded-lg font-black text-xs uppercase bg-blue-600 text-white shadow-lg transition-all border-2 border-blue-400">
+            <i class="fa-solid fa-ship mr-2"></i> Đường Thủy
+        </button>
+        <button id="tab-btn-road" onclick="switchTab('road')" class="px-5 py-2 rounded-lg font-black text-xs uppercase bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border-2 border-transparent">
+            <i class="fa-solid fa-car mr-2"></i> Đường Bộ
+        </button>
+    </div>
+
+    <!-- =======================================================
+         PHẦN 1: MÔ PHỎNG SÔNG NƯỚC
+         ======================================================= -->
+    <div id="water-sim-container" style="display: flex;">
+        <div class="header">
+            <h1>Thực Trạng Phản Xạ & Quán Tính (Đường Thủy)</h1>
+            <p>Kiểm tra tình huống xử lý khẩn cấp trên tuyến luồng</p>
+        </div>
+
+        <div id="simulation-area">
+            <div id="world-container">
+                <div class="water-waves"></div>
+                <div id="vehicle">SÀ LAN RỖNG</div>
+            </div>
+
+            <div id="alert-banner">
+                <h3>⚠️ VẬT CẢN BẤT NGỜ PHÍA TRƯỚC!</h3>
+                <p>XUỒNG MÁY CẮT NGANG LUỒNG</p>
+            </div>
+            
+            <div id="hud-panel">
+                <div class="hud-box">Khoảng cách mốc: <span id="hud-hazard-dist">--</span>m</div>
+                <div class="hud-box">Trạng thái: <span id="hud-status" style="color: #38bdf8;">Đang chờ chạy...</span></div>
+            </div>
+
+            <div id="result-modal" class="modal">
+                <h2 id="result-title">Kết Quả Phân Tích</h2>
+                <p id="result-desc">Chi tiết...</p>
+                <button class="btn-action btn-start" onclick="resetGame()">Thử Lại Mức Khác</button>
+            </div>
+        </div>
+
+        <div id="control-panel">
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Tốc độ di chuyển:</span>
+                    <span id="speed-val">20 km/h</span>
+                </div>
+                <input type="range" id="speed-slider" min="10" max="40" value="20" oninput="updateSpeed()">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label"><span>Tải trọng phương tiện:</span></div>
+                <div class="radio-group">
+                    <div class="radio-btn active" onclick="setLoad(1, this)">Chạy Rỗng</div>
+                    <div class="radio-btn" onclick="setLoad(3, this)">Chở Hàng Nặng (Full)</div>
+                </div>
+            </div>
+
+            <button id="btn-start" class="btn-action btn-start" onclick="startMoving()">Bắt Đầu Chạy</button>
+            <button id="btn-brake" class="btn-action btn-brake" onclick="applyBrake()">🛑 LÙI MÁY HÃM TỐC NGAY!</button>
+        </div>
+    </div>
+
+
+    <!-- =======================================================
+         PHẦN 2: MÔ PHỎNG ĐƯỜNG BỘ
+         ======================================================= -->
+    <div id="road-sim-container" class="flex-grow flex-col" style="display: none;">
+        <header class="bg-slate-900 border-b border-slate-800 py-4 px-6 shadow-md text-center">
+            <h1 class="text-xl font-black text-amber-400 uppercase tracking-wide">
+                <i class="fa-solid fa-gauge-high text-red-500 mr-2"></i>Giả Lập Vật Lý: Phản Xạ & Phanh Thực Tế
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">Phân tích chuyên sâu lý do khoa học của Khoảng cách an toàn đường bộ</p>
+        </header>
+
+        <main class="max-w-6xl w-full mx-auto p-4 flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            <div class="lg:col-span-8 flex flex-col gap-4">
+                
+                <div id="sim-box" class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex justify-between items-center">
+                        <span>Mô phỏng đồ họa động thực địa:</span>
+                        <span id="scale-indicator" class="text-amber-500 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-[10px]">Tỷ lệ khung nhìn: 75m</span>
+                    </div>
+                    
+                    <div id="road-container" class="relative w-full h-[220px] asphalt rounded-xl border border-slate-800 overflow-hidden shadow-inner flex flex-col justify-between py-4 px-4">
+                        
+                        <div id="car-track" class="w-full relative h-12 mt-4">
+                            <div id="sim-car" class="absolute bg-amber-400 text-slate-950 px-3 py-1.5 rounded font-black text-xs shadow-lg flex items-center gap-1.5 transition-all cubic-bezier(0.25, 1, 0.5, 1) min-w-max z-10" style="left: 0px; transform: translateX(0%);">
+                                <i id="car-icon" class="fa-solid fa-car text-sm"></i> <span id="car-text">Ô TÔ CỦA BẠN</span>
+                            </div>
+
+                            <div id="obstacle" class="absolute text-red-500 text-2xl z-20 transition-all duration-500 opacity-0" style="left: 0px; top: 0px;">
+                                <i class="fa-solid fa-person-walking animate-bounce"></i>
+                            </div>
+                        </div>
+
+                        <div id="road-lane" class="w-full h-1 moving-road my-auto opacity-40"></div>
+
+                        <div id="graph-container" class="w-full bg-slate-950/80 p-2 rounded-lg border border-slate-800 flex items-stretch h-10 text-[10px] font-bold overflow-hidden relative">
+                            <div id="bar-px" class="bg-amber-500/30 border-r-2 border-amber-500 flex items-center justify-center text-amber-400 transition-all duration-300" style="width: 0%"></div>
+                            <div id="bar-phanh" class="bg-red-500/30 border-r-2 border-red-500 flex items-center justify-center text-red-400 transition-all duration-300" style="width: 0%"></div>
+                            <div id="bar-safe" class="bg-emerald-500/20 flex-grow flex items-center justify-center text-emerald-400">Vùng Trực Quan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl flex-grow">
+                    <h2 class="text-xs font-black text-slate-400 border-b border-slate-800 pb-2 mb-4 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-calculator mr-2 text-blue-500"></i>Kết quả phân tích động lực học hành vi
+                    </h2>
+
+                    <div id="panel-blank" class="text-center py-10 text-slate-600 font-medium text-xs">
+                        <i class="fa-solid fa-chart-line text-3xl block mb-2 opacity-40"></i>
+                        Bấm phanh mặc định hoặc thử thách chế độ kiểm tra phản xạ để xem phân tích số liệu khoa học.
+                    </div>
+
+                    <div id="panel-data" class="hidden space-y-4">
+                        <div id="crash-banner" class="p-3 rounded-xl text-center font-black uppercase text-xs tracking-wider"></div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div class="bg-blue-950/20 border-l-4 border-blue-500 p-2.5 rounded-r-xl">
+                                <span class="text-[9px] uppercase font-bold text-blue-400 block tracking-wider">Thời gian phản xạ:</span>
+                                <div id="res-time" class="text-base font-black text-blue-400 mt-0.5">1.0 giây</div>
+                                <p class="text-[9px] text-slate-500 italic mt-0.5" id="res-time-desc"></p>
+                            </div>
+                            <div class="bg-amber-950/20 border-l-4 border-amber-500 p-2.5 rounded-r-xl">
+                                <span class="text-[9px] uppercase font-bold text-amber-400 block tracking-wider">1. QĐ Phản xạ (m):</span>
+                                <div id="res-px" class="text-base font-black text-amber-400 mt-0.5">0 mét</div>
+                            </div>
+                            <div class="bg-red-950/20 border-l-4 border-red-500 p-2.5 rounded-r-xl">
+                                <span class="text-[9px] uppercase font-bold text-red-400 block tracking-wider">2. QĐ Phanh lết bánh:</span>
+                                <div id="res-phanh" class="text-base font-black text-red-400 mt-0.5">0 mét</div>
+                            </div>
+                            <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex flex-col justify-center">
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">Tổng quãng đường dừng:</span>
+                                <div id="res-total" class="text-sm font-black text-white mt-0.5 leading-tight">0 mét</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                            <strong class="text-red-400 block text-[10px] uppercase mb-1"><i class="fa-solid fa-bullhorn mr-1"></i>Bài học tuyên truyền thực tế:</strong>
+                            <p id="res-advice"></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-4 bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between h-fit lg:sticky lg:top-4">
+                <div class="space-y-5">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider border-l-2 border-amber-500 pl-2">
+                        Bảng điều khiển thông số:
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Loại phương tiện:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setVehicleType('car')" id="btn-veh-car" class="p-2.5 text-xs font-black rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400 transition cursor-pointer text-center">
+                                <i class="fa-solid fa-car mr-1"></i> Ô TÔ
+                            </button>
+                            <button onclick="setVehicleType('motorcycle')" id="btn-veh-motorcycle" class="p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center">
+                                <i class="fa-solid fa-motorcycle mr-1"></i> XE MÁY
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold text-slate-300 uppercase">Tốc độ di chuyển:</label>
+                            <span class="text-sm font-black text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800"><span id="slider-val">60</span> KM/H</span>
+                        </div>
+                        <input type="range" id="input-speed-slider" min="30" max="120" step="5" value="60" oninput="updateSliderDisplay(this.value)" class="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        <div class="flex justify-between text-[9px] text-slate-500 font-bold mt-1">
+                            <span>30 KM/H</span>
+                            <span>60</span>
+                            <span>90</span>
+                            <span>120 KM/H</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Trạng thái mặt đường:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setRoadCondition('kho')" id="btn-road-kho" class="p-2.5 text-xs font-black rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400 transition cursor-pointer text-center">
+                                <i class="fa-solid fa-sun mr-1"></i> ĐƯỜNG KHÔ
+                            </button>
+                            <button onclick="setRoadCondition('mua')" id="btn-road-mua" class="p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center">
+                                <i class="fa-solid fa-cloud-showers-heavy mr-1"></i> ĐƯỜNG MƯA
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-800 my-2">
+
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <span class="text-[10px] font-bold text-blue-400 block uppercase mb-1.5"><i class="fa-solid fa-gamepad mr-1"></i>Chế độ: Kiểm tra phản xạ</span>
+                        <p class="text-[10px] text-slate-400 mb-2">Người đi bộ sẽ bất ngờ đứng giữa đường, hãy phản xạ thật nhanh để tránh gây tai nạn!</p>
+                        <button onclick="startReactionGame()" id="btn-game" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2 px-2 rounded-lg text-xs transition uppercase cursor-pointer text-center">
+                            <i class="fa-solid fa-play mr-1"></i> Bắt đầu thử thách phản xạ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button onclick="startSimulation(1.0, 'pure')" id="btn-main-trigger" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 px-4 rounded-xl text-sm transition uppercase shadow-lg cursor-pointer tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bolt text-base"></i> Phanh mặc định (Tính từ 1s)
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="bg-slate-950 text-slate-600 text-[10px] py-2 text-center border-t border-slate-900">
+            &copy; 2026 Phần mềm tuyên truyền An toàn giao thông đường bộ • Trực quan hóa Khoảng cách phản xạ động học.
+        </footer>
+    </div>
+
+    <!-- =======================================================
+         SVRIPT XỬ LÝ
+         ======================================================= -->
+    
+    <!-- JS XỬ LÝ CHUYỂN ĐỔI TAB -->
+    <script>
+        function switchTab(type) {
+            const waterSim = document.getElementById('water-sim-container');
+            const roadSim = document.getElementById('road-sim-container');
+            const btnWater = document.getElementById('tab-btn-water');
+            const btnRoad = document.getElementById('tab-btn-road');
+
+            if (type === 'water') {
+                waterSim.style.display = 'flex';
+                roadSim.style.display = 'none';
+                
+                btnWater.className = "px-5 py-2 rounded-lg font-black text-xs uppercase bg-blue-600 text-white shadow-lg transition-all border-2 border-blue-400";
+                btnRoad.className = "px-5 py-2 rounded-lg font-black text-xs uppercase bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border-2 border-transparent";
+            } else {
+                waterSim.style.display = 'none';
+                roadSim.style.display = 'flex';
+                
+                btnRoad.className = "px-5 py-2 rounded-lg font-black text-xs uppercase bg-amber-600 text-white shadow-lg transition-all border-2 border-amber-400";
+                btnWater.className = "px-5 py-2 rounded-lg font-black text-xs uppercase bg-slate-800 text-slate-400 hover:bg-slate-700 transition-all border-2 border-transparent";
+            }
+        }
+    </script>
+
+    <!-- JS SOURCE 1 (Đường Thủy) -->
+    <script>
+        const vehicle = document.getElementById('vehicle');
+        const alertBanner = document.getElementById('alert-banner');
+        const worldContainer = document.getElementById('world-container');
+        const btnStart = document.getElementById('btn-start');
+        const btnBrake = document.getElementById('btn-brake');
+        const modal = document.getElementById('result-modal');
+        const hudHazardDist = document.getElementById('hud-hazard-dist');
+        const hudStatus = document.getElementById('hud-status');
+        
+        let speedSetting = 20; 
+        let loadFactor = 1; 
+        
+        let boatPositionMeters = 0;   
+        let obstaclePositionMeters = 0; 
+        let currentSpeedMs = 0; 
+        
+        let gameStateWater = 'IDLE'; 
+        
+        let reactionDistance = 0;
+        let brakingDistance = 0;
+        let animationFrame;
+        let lastTime = 0;
+
+        function updateSpeed() {
+            speedSetting = parseInt(document.getElementById('speed-slider').value);
+            document.getElementById('speed-val').innerText = speedSetting + ' km/h';
+        }
+
+        function setLoad(factor, element) {
+            loadFactor = factor;
+            document.querySelectorAll('#water-sim-container .radio-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            if(factor > 1) {
+                vehicle.style.background = "#b45309";
+                vehicle.innerText = "SÀ LAN NẶNG";
+            } else {
+                vehicle.style.background = "#475569";
+                vehicle.innerText = "SÀ LAN RỖNG";
+            }
+        }
+
+        function startMoving() {
+            boatPositionMeters = 0;
+            currentSpeedMs = speedSetting * 0.27778; 
+            obstaclePositionMeters = 50 + Math.random() * 15; 
+            
+            gameStateWater = 'CRUISING';
+            reactionDistance = 0;
+            brakingDistance = 0;
+            
+            alertBanner.style.display = 'none';
+            vehicle.style.left = '15%';
+            worldContainer.style.transform = 'scale(1)';
+            
+            hudHazardDist.innerText = obstaclePositionMeters.toFixed(1);
+            hudStatus.innerText = "Đang hành trình trên sông...";
+            hudStatus.style.color = "#38bdf8";
+
+            btnStart.style.display = 'none';
+            btnBrake.style.display = 'block';
+            modal.style.display = 'none';
+            document.querySelectorAll('#water-sim-container .control-group').forEach(el => el.style.opacity = '0.4');
+
+            cancelAnimationFrame(animationFrame);
+            lastTime = performance.now();
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function applyBrake() {
+            if (gameStateWater === 'CRUISING') return;
+            if (gameStateWater === 'HAZARD_APPEARED') {
+                gameStateWater = 'BRAKING';
+                alertBanner.style.display = 'none';
+                hudStatus.innerText = "ĐANG LÙI MÁY HÃM TỐC...";
+                hudStatus.style.color = "#facc15";
+                btnBrake.style.background = "#991b1b";
+            }
+        }
+
+        function gameLoop(currentTime) {
+            if (gameStateWater === 'IDLE' || gameStateWater === 'FINISHED') return;
+
+            let deltaTime = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+
+            if (isNaN(deltaTime) || deltaTime <= 0 || deltaTime > 0.1) {
+                deltaTime = 0.016; 
+            }
+
+            if (gameStateWater === 'CRUISING') {
+                boatPositionMeters += currentSpeedMs * deltaTime;
+
+                if (boatPositionMeters >= (obstaclePositionMeters - 35)) {
+                    gameStateWater = 'HAZARD_APPEARED';
+                    alertBanner.style.display = 'block';
+                    hudStatus.innerText = "⚠️ BẤM PHANH GẤP!";
+                    hudStatus.style.color = "#ef4444";
+                }
+            } 
+            else if (gameStateWater === 'HAZARD_APPEARED') {
+                reactionDistance += currentSpeedMs * deltaTime;
+                boatPositionMeters += currentSpeedMs * deltaTime;
+
+                if (boatPositionMeters >= obstaclePositionMeters) {
+                    gameStateWater = 'FINISHED';
+                    boatPositionMeters = obstaclePositionMeters;
+                    alertBanner.style.display = 'none';
+                    showResult(false, reactionDistance, 0);
+                    return;
+                }
+            } 
+            else if (gameStateWater === 'BRAKING') {
+                let baseResistance = 0.35; 
+                let effectiveDeceleration = (baseResistance + (currentSpeedMs * 0.05)) / loadFactor;
+                
+                currentSpeedMs -= effectiveDeceleration * deltaTime;
+                if (currentSpeedMs < 0) currentSpeedMs = 0;
+
+                let frameMove = currentSpeedMs * deltaTime;
+                brakingDistance += frameMove;
+                boatPositionMeters += frameMove;
+
+                if (boatPositionMeters >= obstaclePositionMeters) {
+                    gameStateWater = 'FINISHED';
+                    boatPositionMeters = obstaclePositionMeters;
+                    alertBanner.style.display = 'none';
+                    showResult(false, reactionDistance, brakingDistance);
+                    return;
+                }
+
+                if (currentSpeedMs <= 0) {
+                    gameStateWater = 'FINISHED';
+                    alertBanner.style.display = 'none';
+                    
+                    worldContainer.style.transform = 'scale(0.75)';
+                    showResult(true, reactionDistance, brakingDistance);
+                    return;
+                }
+            }
+
+            let currentDistLeft = obstaclePositionMeters - boatPositionMeters;
+            if (currentDistLeft < 0) currentDistLeft = 0;
+            hudHazardDist.innerText = currentDistLeft.toFixed(1);
+
+            let screenPercent = 15 + (boatPositionMeters / obstaclePositionMeters) * 60;
+            vehicle.style.left = screenPercent + '%';
+
+            animationFrame = requestAnimationFrame(gameLoop);
+        }
+
+        function showResult(isSafe, rxDist, brDist) {
+            btnBrake.style.display = 'none';
+            modal.style.display = 'block';
+
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+            
+            let totalStopDist = rxDist + brDist;
+
+            if (isSafe) {
+                title.innerText = "Phản Xạ Kịp Thời - An Toàn!";
+                title.className = "text-safe";
+                desc.innerHTML = `Quãng đường phản ứng: <span class="highlight-number">${rxDist.toFixed(1)}m</span><br>` +
+                                 `Quãng đường hãm phanh: <span class="highlight-number">${brDist.toFixed(1)}m</span><br>` +
+                                 `👉 Tổng khoảng dừng: <span class="highlight-number">${totalStopDist.toFixed(1)}m</span>. Dừng an toàn trước sự cố!`;
+            } else {
+                worldContainer.style.transform = 'scale(1)';
+                title.innerText = "VỤ VA CHẠM ĐÃ XẢY RA!";
+                title.className = "text-crash";
+                desc.innerHTML = `Quãng đường phản ứng (chần chừ): <span class="highlight-number" style="color:#ef4444">${rxDist.toFixed(1)}m</span><br>` +
+                                 `Quãng đường phanh trượt: <span class="highlight-number" style="color:#ef4444">${brDist.toFixed(1)}m</span><br>` +
+                                 `👉 Quán tính lớn vượt quá khoảng cách cho phép! Va chạm là tất yếu.`;
+            }
+        }
+
+        function resetGame() {
+            boatPositionMeters = 0;
+            currentSpeedMs = 0;
+            reactionDistance = 0;
+            brakingDistance = 0;
+            gameStateWater = 'IDLE';
+            
+            alertBanner.style.display = 'none';
+            vehicle.style.left = '15%';
+            vehicle.style.background = loadFactor > 1 ? "#b45309" : "#475569";
+            worldContainer.style.transform = 'scale(1)';
+            
+            hudHazardDist.innerText = "--";
+            hudStatus.innerText = "Đang chờ chạy...";
+            hudStatus.style.color = "#38bdf8";
+
+            btnStart.style.display = 'block';
+            btnBrake.style.display = 'none';
+            btnBrake.style.background = "#ef4444";
+            btnBrake.innerText = "🛑 LÙI MÁY HÃM TỐC NGAY!";
+            modal.style.display = 'none';
+            document.querySelectorAll('#water-sim-container .control-group').forEach(el => el.style.opacity = '1');
+            cancelAnimationFrame(animationFrame);
+        }
+    </script>
+
+    <!-- JS SOURCE 2 (Đường Bộ) -->
+    <script>
+        let currentCondition = 'kho';
+        let currentVehicle = 'car';
+        let isSimulating = false;
+        
+        let gameTimeout = null;
+        let startTime = 0;
+        
+        let gameStateRoad = 'idle'; 
+
+        let currentObstacleMeters = 0; 
+
+        function updateSliderDisplay(val) {
+            document.getElementById('slider-val').innerText = val;
+        }
+
+        function setVehicleType(type) {
+            if (isSimulating) return;
+            currentVehicle = type;
+            const btnCar = document.getElementById('btn-veh-car');
+            const btnMotor = document.getElementById('btn-veh-motorcycle');
+            const carIcon = document.getElementById('car-icon');
+            const carText = document.getElementById('car-text');
+
+            if (type === 'car') {
+                btnCar.className = "p-2.5 text-xs font-black rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400 transition cursor-pointer text-center";
+                btnMotor.className = "p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center";
+                carIcon.className = "fa-solid fa-car text-sm";
+                carText.innerText = "Ô TÔ CỦA BẠN";
+            } else {
+                btnCar.className = "p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center";
+                btnMotor.className = "p-2.5 text-xs font-black rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400 transition cursor-pointer text-center";
+                carIcon.className = "fa-solid fa-motorcycle text-sm";
+                carText.innerText = "XE MÁY CỦA BẠN";
+            }
+        }
+
+        function setRoadCondition(condition) {
+            if (isSimulating) return;
+            currentCondition = condition;
+            const btnKho = document.getElementById('btn-road-kho');
+            const btnMua = document.getElementById('btn-road-mua');
+            if (condition === 'kho') {
+                btnKho.className = "p-2.5 text-xs font-black rounded-xl border-2 border-amber-500 bg-amber-500/10 text-amber-400 transition cursor-pointer text-center";
+                btnMua.className = "p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center";
+            } else {
+                btnKho.className = "p-2.5 text-xs font-black rounded-xl border border-slate-700 bg-slate-950 text-slate-400 transition cursor-pointer text-center";
+                btnMua.className = "p-2.5 text-xs font-black rounded-xl border-2 border-blue-500 bg-blue-500/10 text-blue-400 transition cursor-pointer text-center";
+            }
+        }
+
+        function startReactionGame() {
+            if (isSimulating) return;
+            const btnGame = document.getElementById('btn-game');
+            const obstacle = document.getElementById('obstacle');
+            
+            if (gameStateRoad === 'idle') {
+                gameStateRoad = 'waiting';
+                btnGame.innerText = "CHÚ Ý ĐƯỜNG... BẤM NGAY KHI THẤY NGƯỜI QUA ĐƯỜNG!";
+                btnGame.className = "w-full bg-amber-600 text-white font-black py-2 px-2 rounded-lg text-xs uppercase text-center animate-pulse";
+                
+                obstacle.classList.add('opacity-0');
+                obstacle.classList.remove('opacity-100');
+
+                const randomDelay = Math.random() * 2000 + 1000;
+                gameTimeout = setTimeout(() => {
+                    gameStateRoad = 'appeared';
+                    
+                    const speedInput = parseFloat(document.getElementById('input-speed-slider').value);
+                    const v_ms = speedInput / 3.6;
+                    let mu = (currentVehicle === 'car') ? (currentCondition === 'kho' ? 0.7 : 0.35) : (currentCondition === 'kho' ? 0.6 : 0.28);
+                    
+                    let calcDist = (v_ms * 0.7) + ((v_ms * v_ms) / (2 * 9.8 * mu));
+                    currentObstacleMeters = Math.max(40, calcDist);
+                    
+                    const estimatedTotal = (v_ms * 1.5) + ((v_ms * v_ms) / (2 * 9.8 * mu)); 
+                    let maxViewMeters = 75;
+                    if (estimatedTotal > 140) maxViewMeters = Math.max(250, Math.ceil(estimatedTotal / 50) * 50);
+                    else if (estimatedTotal > 65) maxViewMeters = 150;
+                    
+                    const obstacleLeftPercent = (currentObstacleMeters / maxViewMeters) * 100;
+                    obstacle.style.left = `${obstacleLeftPercent}%`;
+
+                    obstacle.classList.remove('opacity-0');
+                    obstacle.classList.add('opacity-100');
+                    startTime = performance.now();
+                }, randomDelay);
+                
+            } else if (gameStateRoad === 'appeared') {
+                const endTime = performance.now();
+                const reactionTimeSeconds = ((endTime - startTime) / 1000); 
+                
+                gameStateRoad = 'idle';
+                btnGame.innerText = `PHẢN XẠ: ${reactionTimeSeconds.toFixed(3)} GIÂY`;
+                btnGame.className = "w-full bg-emerald-600 text-white font-black py-2 px-2 rounded-lg text-xs uppercase text-center";
+                
+                startSimulation(reactionTimeSeconds, 'game');
+            } else if (gameStateRoad === 'waiting') {
+                clearTimeout(gameTimeout);
+                gameStateRoad = 'idle';
+                btnGame.innerText = "BẤM SỚM QUÁ (GIẬT MÌNH)! THỬ LẠI";
+                btnGame.className = "w-full bg-red-600 text-white font-black py-2 px-2 rounded-lg text-xs uppercase text-center";
+            }
+        }
+
+        function startSimulation(customReactionTime = 1.0, mode = 'pure') {
+            if (isSimulating && gameStateRoad !== 'idle') return; 
+            isSimulating = true;
+
+            const speedInput = parseFloat(document.getElementById('input-speed-slider').value);
+            document.getElementById('panel-blank').classList.add('hidden');
+            document.getElementById('panel-data').classList.remove('hidden');
+
+            const v_ms = speedInput / 3.6; 
+            const t_px = customReactionTime; 
+            const g = 9.8; 
+            
+            let mu = 0.7;
+            if (currentVehicle === 'car') {
+                mu = (currentCondition === 'kho') ? 0.7 : 0.35;
+            } else { 
+                mu = (currentCondition === 'kho') ? 0.6 : 0.28;
+            }
+
+            const s_px = v_ms * t_px; 
+            const s_phanh = (v_ms * v_ms) / (2 * g * mu); 
+            const s_total = s_px + s_phanh; 
+
+            const estimatedTotal = (v_ms * 1.5) + ((v_ms * v_ms) / (2 * 9.8 * mu));
+            let maxViewMeters = 75; 
+            if (estimatedTotal > 140) {
+                maxViewMeters = Math.max(250, Math.ceil(estimatedTotal / 50) * 50); 
+            } else if (estimatedTotal > 65) {
+                maxViewMeters = 150;
+            }
+            
+            document.getElementById('scale-indicator').innerText = `Tỷ lệ khung nhìn: ${maxViewMeters}m`;
+
+            const pctPx = (s_px / maxViewMeters) * 100;
+            const pctPhanh = (s_phanh / maxViewMeters) * 100;
+            let targetLeft = pctPx + pctPhanh;
+
+            const hasCrashed = (mode === 'game') && (s_total >= currentObstacleMeters);
+            
+            const crashBanner = document.getElementById('crash-banner');
+            const mainBody = document.getElementById('main-body');
+            const simBox = document.getElementById('sim-box');
+            const obstacle = document.getElementById('obstacle');
+
+            if (mode === 'pure') {
+                obstacle.classList.add('opacity-0');
+                obstacle.classList.remove('opacity-100');
+            } else {
+                const obstacleLeftPercent = (currentObstacleMeters / maxViewMeters) * 100;
+                obstacle.style.left = `${obstacleLeftPercent}%`;
+                obstacle.classList.remove('opacity-0');
+                obstacle.classList.add('opacity-100');
+            }
+
+            document.getElementById('res-time').innerText = t_px.toFixed(2) + " giây";
+            document.getElementById('res-px').innerText = s_px.toFixed(1) + " m";
+            document.getElementById('res-phanh').innerText = s_phanh.toFixed(1) + " m";
+            document.getElementById('res-total').innerHTML = `<span class="text-base text-amber-400 font-black">${s_total.toFixed(1)} mét</span>`;
+
+            if (t_px > 1.2) {
+                document.getElementById('res-time-desc').innerText = "Quá chậm (Xử lý kém)";
+                document.getElementById('res-time-desc').className = "text-[9px] text-red-400 font-bold";
+            } else {
+                document.getElementById('res-time-desc').innerText = "Bình thường";
+                document.getElementById('res-time-desc').className = "text-[9px] text-slate-500";
+            }
+
+            document.getElementById('bar-px').style.width = `${pctPx}%`;
+            document.getElementById('bar-px').innerText = `${s_px.toFixed(1)}m`;
+            document.getElementById('bar-phanh').style.width = `${pctPhanh}%`;
+            document.getElementById('bar-phanh').innerText = `${s_phanh.toFixed(1)}m`;
+
+            const simCar = document.getElementById('sim-car');
+            const roadLane = document.getElementById('road-lane');
+
+            simCar.style.transitionProperty = "left, transform";
+            simCar.style.transitionDuration = "1.4s";
+            simCar.style.transitionTimingFunction = "cubic-bezier(0.25, 1, 0.5, 1)";
+            
+            if (hasCrashed) {
+                const obstacleLeftPercent = (currentObstacleMeters / maxViewMeters) * 100;
+                simCar.style.left = `${obstacleLeftPercent}%`;
+            } else {
+                simCar.style.left = `${targetLeft}%`;
+            }
+            
+            simCar.style.transform = "translateX(-100%)";
+            roadLane.style.animationPlayState = "paused"; 
+
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(currentVehicle === 'car' ? 550 : 700, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.stop(ctx.currentTime + 0.4);
+            } catch(e) {}
+
+            setTimeout(() => {
+                const vehicleName = currentVehicle === 'car' ? 'Ô tô' : 'Xe máy';
+                
+                if (mode === 'pure') {
+                    crashBanner.className = "p-3 rounded-xl text-center font-black uppercase text-xs tracking-wider bg-slate-800 text-amber-400";
+                    crashBanner.innerHTML = `<i class="fa-solid fa-chart-bar mr-2"></i> KẾT QUẢ ĐO LƯỜNG ĐỘNG LỰC HỌC`;
+                    
+                    let advice = `Hệ thống ghi nhận hành trình phanh thực nghiệm lý thuyết của <strong>${vehicleName.toLowerCase()}</strong> ở tốc độ cao <strong>${speedInput} km/h</strong>. Tổng quãng đường để dừng hẳn phương tiện là <strong>${s_total.toFixed(1)} mét</strong> (bao gồm <strong>${s_px.toFixed(1)}m</strong> chạy tự do trong thời gian phản xạ 1 giây và <strong>${s_phanh.toFixed(1)}m</strong> lết bánh cơ học).`;
+                    if (currentCondition === 'mua') advice += ` Tốc độ cao kết hợp mặt đường trơn ướt làm vệt phanh lết bánh kéo dài kỷ lục! Hãy giảm tốc độ xuống dưới 60km/h khi trời mưa.`;
+                    document.getElementById('res-advice').innerHTML = advice;
+                    
+                } else {
+                    if (hasCrashed) {
+                        crashBanner.className = "p-3 rounded-xl text-center font-black uppercase text-xs tracking-wider bg-red-600 text-white animate-bounce";
+                        crashBanner.innerHTML = `<i class="fa-solid fa-skull-crossbones mr-2"></i> TAI NẠN NGHIÊM TRỌNG! ${vehicleName.toUpperCase()} ĐÃ TÔNG TRÚNG NGƯỜI ĐI BỘ`;
+                        
+                        simBox.classList.add('crash-shake');
+                        mainBody.classList.add('bg-red-950');
+                        obstacle.style.transform = "translate(50px, -30px) rotate(90deg)"; 
+                        obstacle.className = "absolute text-slate-600 text-2xl z-20 transition-all duration-300";
+
+                        let advice = `<strong>HẬU QUẢ VẬT LÝ KHỐC LIỆT:</strong> Ở tốc độ <strong>${speedInput} km/h</strong> kết hợp phản xạ mất <strong>${t_px.toFixed(2)} giây</strong>, xe mất tới <strong>${s_total.toFixed(1)} mét</strong> mới dừng hẳn. Do chướng ngại vật xuất hiện tại mốc <strong>${currentObstacleMeters.toFixed(1)}m</strong>, bạn <strong>hoàn toàn không thể tránh kịp tai nạn khốc liệt này</strong>!`;
+                        document.getElementById('res-advice').innerHTML = advice;
+                    } else {
+                        crashBanner.className = "p-3 rounded-xl text-center font-black uppercase text-xs tracking-wider bg-emerald-600 text-white";
+                        crashBanner.innerHTML = `<i class="fa-solid fa-shield-heart mr-2"></i> PHANH AN TOÀN! XE DỪNG CÁCH NGƯỜI ĐI BỘ SUÝT SOÁT ${(currentObstacleMeters - s_total).toFixed(1)} MÉT`;
+                        
+                        let advice = `Do duy duy tốc độ hợp lý và phản xạ nhanh nhẹn (chỉ <strong>${t_px.toFixed(2)} giây</strong>), tổng quãng đường dừng của <strong>${vehicleName.toLowerCase()}</strong> là <strong>${s_total.toFixed(1)} mét</strong>, nằm trong phạm vi an toàn trước khi va chạm vật cản tại mốc <strong>${currentObstacleMeters.toFixed(1)}m</strong>.`;
+                        document.getElementById('res-advice').innerHTML = advice;
+                    }
+                }
+            }, 1400);
+
+            setTimeout(() => {
+                simCar.style.transitionDuration = "0.4s";
+                simCar.style.left = "0px";
+                simCar.style.transform = "translateX(0%)";
+                roadLane.style.animationPlayState = "running";
+                
+                simBox.classList.remove('crash-shake');
+                mainBody.classList.remove('bg-red-950');
+                
+                obstacle.className = "absolute text-red-500 text-2xl z-20 transition-all duration-500 opacity-0";
+                obstacle.style.transform = "none";
+                
+                setTimeout(() => { 
+                    isSimulating = false; 
+                    if (gameStateRoad === 'idle') {
+                        document.getElementById('btn-game').innerText = "Bắt đầu thử thách phản xạ";
+                        document.getElementById('btn-game').className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2 px-2 rounded-lg text-xs uppercase text-center cursor-pointer";
+                    }
+                }, 400);
+            }, 6500);
+        }
+    </script>
+</body>
+</html>
