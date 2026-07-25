@@ -1,1 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSGT - Quyết Định Vì An Toàn</title>
+    <style>
+        /* CHỈNH SỬA NỀN ĐỂ PHÙ HỢP VỚI MÀU GIAO THÔNG */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #004a99, #007bff, #28a745); /* Màu xanh CSGT và màu an toàn */
+            background-attachment: fixed;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; 
+        }
+        #game-container { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 2rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+            width: 90%; 
+            max-width: 600px; 
+            text-align: center;
+            border: 5px solid #ffc107; /* Viền màu vàng biển báo */
+        }
+        .btn { display: block; width: 100%; padding: 12px; margin: 10px 0; border: none; border-radius: 8px; background: #007bff; color: white; cursor: pointer; transition: 0.3s; font-weight: bold;}
+        .btn:hover { background: #0056b3; }
+        .hidden { display: none; }
+        #feedback { margin-top: 20px; padding: 15px; border-radius: 8px; font-weight: bold; }
+        .correct { background: #d4edda; color: #155724; }
+        .wrong { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
 
+<div id="game-container">
+    <div id="start-screen">
+        <h1>🚔 TRÒ CHƠI NHẬP VAI CSGT: <p>Quyết Định Vì An Toàn</p></h1>
+      <p>Hóa thân thành chiến sĩ Cảnh sát giao thông, bạn hãy đưa ra các quyết định đúng đắn để bảo vệ bình yên trên những cung đường.</p>
+        <button class="btn" onclick="startGame()">BẮT ĐẦU NHIỆM VỤ</button>
+    </div>
+
+    <div id="game-play" class="hidden">
+        <h3 id="question-title">Tình huống</h3>
+        <p id="question-text"></p>
+        <div id="options"></div>
+        <div id="feedback" class="hidden"></div>
+        <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Tiếp theo</button>
+    </div>
+
+    <div id="end-screen" class="hidden">
+        <h2 id="result-text"></h2>
+        <p id="score-text"></p>
+        <button class="btn" onclick="location.reload()">CHƠI LẠI</button>
+    </div>
+</div>
+
+<script>
+    const scenarios = [
+        { q: "22 giờ, phát hiện người đi mô tô có biểu hiện mất thăng bằng, phản ứng chậm...", a: ["Cho đi vì đường vắng", "Dừng xe, kiểm tra giấy tờ và nồng độ cồn", "Nhắc nhở rồi cho đi", "Yêu cầu người dân xác nhận"], correct: 1 },
+        { q: "Phát hiện xe mô tô vượt đèn đỏ tại nút giao thông đông người...", a: ["Bỏ qua vì không tai nạn", "Dừng phương tiện, xử lý theo quy định", "Chỉ nhắc nhở", "Yêu cầu tự nhận lỗi rồi cho đi"], correct: 1 },
+        { q: "Nhóm thanh niên lạng lách, đánh võng, chạy tốc độ cao...", a: ["Đuổi theo yêu cầu dừng xe xử lý", "Bỏ qua", "Chỉ yêu cầu giảm tốc độ", "Chờ xảy ra va chạm mới xử lý"], correct: 0 },
+        { q: "Người điều khiển xe máy vừa chạy vừa sử dụng điện thoại...", a: ["Không xử lý", "Nhắc nhở rồi cho đi", "Dừng phương tiện, tuyên truyền và xử lý", "Chỉ xử lý khi có tai nạn"], correct: 2 },
+        { q: "Xe tải có dấu hiệu chở hàng vượt quá tải trọng cho phép...", a: ["Cho đi vì hàng gấp", "Kiểm tra, lập biên bản xử lý", "Chỉ nhắc nhở", "Bỏ qua nếu chạy ban đêm"], correct: 1 },
+        { q: "Thanh niên không xuất trình được giấy phép lái xe phù hợp...", a: ["Cho đi vì biết chạy xe", "Kiểm tra thông tin và xử lý", "Yêu cầu cam kết không tái phạm", "Không cần kiểm tra"], correct: 1 },
+        { q: "Xe máy đi vào làn dành cho ô tô...", a: ["Dừng xe, giải thích và xử lý", "Không xử lý", "Nhắc nhở bằng lời", "Bỏ qua"], correct: 0 },
+        { q: "Khu vực trường học, học sinh tan học đông đúc...", a: ["Tăng cường hướng dẫn, phân luồng", "Chỉ quan sát", "Chờ ùn tắc mới xử lý", "Cho phương tiện tự di chuyển"], correct: 0 },
+        { q: "Trời mưa lớn, đường trơn trượt, phương tiện di chuyển khó khăn...", a: ["Tăng cường cảnh báo, hướng dẫn giảm tốc độ", "Không làm gì", "Yêu cầu xe chạy nhanh thoát ùn tắc", "Chờ có tai nạn"], correct: 0 },
+        { q: "Người dân vi phạm có thái độ chưa hợp tác...", a: ["Giải thích rõ lỗi, giữ thái độ đúng mực", "Tranh luận gay gắt", "Bỏ qua", "Nhờ người khác xử lý thay"], correct: 0 }
+    ];
+
+    let currentQ = 0, score = 0;
+
+    function startGame() { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('game-play').classList.remove('hidden'); showQuestion(); }
+
+    function showQuestion() {
+        let s = scenarios[currentQ];
+        document.getElementById('question-title').innerText = `TÌNH HUỐNG ${currentQ + 1}`;
+        document.getElementById('question-text').innerText = s.q;
+        let optDiv = document.getElementById('options'); optDiv.innerHTML = '';
+        s.a.forEach((opt, i) => {
+            let btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(i);
+            optDiv.appendChild(btn);
+        });
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function checkAnswer(i) {
+        let f = document.getElementById('feedback');
+        if(i === scenarios[currentQ].correct) { score += 10; f.innerText = "✅ Chính xác!"; f.className = "correct"; }
+        else { f.innerText = "❌ Sai rồi. Bạn cần xử lý nghiêm theo quy định."; f.className = "wrong"; }
+        f.classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+        Array.from(document.getElementById('options').children).forEach(b => b.disabled = true);
+    }
+
+    function nextQuestion() {
+        currentQ++;
+        if(currentQ < scenarios.length) showQuestion();
+        else showEnd();
+    }
+
+    function showEnd() {
+        document.getElementById('game-play').classList.add('hidden');
+        let end = document.getElementById('end-screen'); end.classList.remove('hidden');
+        let rank = score >= 90 ? "🏆 CSGT BẢN LĨNH – CHUYÊN NGHIỆP" : (score >= 70 ? "🥇 NGƯỜI THỰC THI PHÁP LUẬT TRÁCH NHIỆM" : "🥈 CẦN BỔ SUNG THÊM KIẾN THỨC GIAO THÔNG");
+        document.getElementById('result-text').innerText = rank;
+        document.getElementById('score-text').innerText = `Tổng điểm: ${score}/100`;
+    }
+</script>
+</body>
+</html>
