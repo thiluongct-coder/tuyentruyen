@@ -18,7 +18,7 @@
             background: #060b14; 
         }
 
-        /* Container nền thành phố công nghệ */
+        
         .city-container {
             position: relative;
             width: 100vw;
@@ -27,14 +27,14 @@
             background-size: cover;
         }
 
-        /* Lớp phủ hiệu ứng công nghệ */
+        
         .city-container::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(180deg, rgba(6, 11, 20, 0.4) 0%, rgba(0, 240, 255, 0.15) 100%);
             z-index: 1; pointer-events: none;
         }
 
-        /* Khung chứa các nút bấm tương tác */
+        
         .hotspots-wrapper {
             position: absolute;
             top: 0; left: 0;
@@ -42,7 +42,7 @@
             z-index: 10;
         }
 
-        /* Tiêu đề chính cập nhật */
+        
         .title-top {
             position: absolute; top: 4%; color: white; z-index: 20; text-align: center; width: 100%; pointer-events: none;
         }
@@ -52,7 +52,7 @@
         }
         .title-top p { margin: 8px 15px 0; font-size: 1rem; color: #a5f3fc; font-weight: 500; }
 
-        /* Định dạng chung cho nút Hotspot */
+        
         .hotspot {
             position: absolute; cursor: pointer; display: flex; flex-direction: column; align-items: center;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -83,13 +83,13 @@
             border: 1px solid var(--neon-blue); box-shadow: 0 4px 12px rgba(0, 240, 255, 0.3); white-space: nowrap;
         }
 
-        /* VỊ TRÍ TỌA ĐỘ TRÊN MÁY TÍNH (MÀN HÌNH RỘNG) */
+        
         #spot-nhom1 { top: 32%; left: 20%; }
         #spot-nhom2 { top: 62%; left: 35%; }
         #spot-nhom3 { top: 40%; left: 58%; }
         #spot-nhom4 { top: 52%; left: 78%; }
 
-        /* CẤU HÌNH TỰ ĐỘNG CHỐNG CHỒNG ĐÈ KHI THU NHỎ (MÀN HÌNH < 850px) */
+        
         @media (max-width: 850px) {
             body, html { overflow-y: auto; }
             .city-container { height: auto; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 160px; padding-bottom: 40px; box-sizing: border-box; }
@@ -108,7 +108,7 @@
             .hotspot-label { font-size: 12px; white-space: normal; text-align: center; max-width: 130px; }
         }
 
-        /* Thiết kế Hộp thoại Pop-up kính mờ rộng rãi cho nhiều nội dung */
+        
         .modal {
             display: none; position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(3, 7, 18, 0.65); justify-content: center; align-items: center; backdrop-filter: blur(8px);
@@ -127,7 +127,7 @@
         .modal-header svg { width: 28px; height: 28px; fill: var(--neon-blue); }
         .modal-header h2 { margin: 0; font-size: 18px; color: #ffffff; }
         
-        /* Tạo thanh cuộn mượt cho nội dung dài */
+        
         .modal-body { overflow-y: auto; padding-right: 10px; }
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
@@ -250,7 +250,7 @@
             list.appendChild(li);
         });
         document.getElementById('infoModal').style.display = 'flex';
-        // Đưa thanh cuộn về đầu trang mỗi khi mở pop-up mới
+        
         document.querySelector('.modal-body').scrollTop = 0;
     }
 
