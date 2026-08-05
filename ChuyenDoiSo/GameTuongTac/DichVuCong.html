@@ -44,7 +44,7 @@
             line-height: 1.4;
         }
 
-        /* Thanh chọn dịch vụ */
+        
         .service-selector {
             display: flex;
             gap: 10px;
@@ -73,7 +73,7 @@
             box-shadow: 0 4px 10px rgba(26, 86, 219, 0.3);
         }
 
-        /* Danh sách quy trình */
+        
         #sortable-list {
             list-style: none;
             width: 100%;
@@ -142,7 +142,7 @@
             line-height: 1.4;
         }
 
-        /* Nút điều khiển di chuyển */
+        
         .item-controls {
             display: flex;
             flex-direction: column;
@@ -168,7 +168,7 @@
             background: #e5e7eb;
         }
 
-        /* Nút kiểm tra chính */
+        
         .btn-check {
             background: #1a56db;
             color: white;
@@ -186,7 +186,7 @@
 
         .btn-check:hover { background: #1e40af; }
 
-        /* Hộp thoại thông báo */
+        
         .modal {
             display: none;
             position: fixed;
@@ -270,7 +270,7 @@
     </div>
 
     <script>
-        // Dữ liệu 2 dịch vụ công quản lý hành chính
+        
         const servicesData = {
             sv1: {
                 title: "Nộp Phạt Giao Thông Trực Tuyến",
@@ -315,12 +315,12 @@
             currentServiceKey = key;
             selectedIndex = null;
             
-            // Cập nhật trạng thái nút chọn giao diện
+            
             document.getElementById('btn-sv1').classList.remove('active');
             document.getElementById('btn-sv2').classList.remove('active');
             document.getElementById('btn-' + key).classList.add('active');
 
-            // Cập nhật tiêu đề mô tả
+            
             document.getElementById('service-title').innerText = servicesData[key].title;
             document.getElementById('service-desc').innerText = servicesData[key].desc;
 
