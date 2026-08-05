@@ -6,14 +6,14 @@
     <title>Chuyển đổi số Cần Thơ 2030 - Toàn cảnh</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe UI:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Reset & Font chung --- */
+        
         body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
 
-        /* --- STYLES CHO PHẦN PARALLAX --- */
+        
         .parallax-section {
             position: relative;
-            height: 100vh; /* Chiều cao toàn màn hình */
-            background-attachment: fixed; /* Tạo hiệu ứng trôi */
+            height: 100vh; 
+            background-attachment: fixed; 
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -23,7 +23,7 @@
             color: white;
         }
 
-        /* Lớp phủ làm tối ảnh để chữ dễ đọc */
+        
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6);
@@ -39,7 +39,7 @@
         .parallax-section h2 { font-size: 2.5rem; }
         .parallax-section p { font-size: 1.2rem; }
 
-        /* Khối nội dung văn bản xen kẽ */
+        
         .content-block {
             padding: 80px 10%;
             background: #f9f9f9;
@@ -48,9 +48,9 @@
 
         .content-block h2 { color: #2c3e50; border-left: 5px solid #3498db; padding-left: 15px; }
 
-        /* --- STYLES CHO PHẦN SƠ ĐỒ TƯƠNG TÁC (CUỐI TRANG) --- */
+        
         #interactive-map-area {
-            background-color: #001a33; /* Màu nền tối */
+            background-color: #001a33; 
             padding: 80px 0;
             position: relative;
         }
@@ -64,7 +64,7 @@
 
         .map-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive tự động */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
             gap: 40px;
             padding: 0 50px;
             max-width: 1200px; margin: 0 auto;
@@ -102,7 +102,7 @@
             font-size: 0.9rem;
         }
 
-        /* Hiệu ứng nền cho phần tương tác (giữ lại ảnh nền mờ) */
+        
         #interactive-map-area::before {
             content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
             background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2000');
@@ -110,18 +110,18 @@
             opacity: 0.2; z-index: 1;
         }
 
-        /* --- STYLES CHO CỬA SỔ POPUP --- */
+        
         .popup-overlay {
-            display: none; /* Ẩn mặc định */
+            display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7);
             z-index: 1000;
             justify-content: center; align-items: center;
-            backdrop-filter: blur(5px); /* Làm mờ nền phía sau popup */
+            backdrop-filter: blur(5px); 
         }
 
         .popup-content {
-            display: none; /* Mặc định các nội dung popup bên trong đều ẩn */
+            display: none; 
             background: white;
             width: 90%; max-width: 600px;
             padding: 40px;
@@ -129,7 +129,7 @@
             box-shadow: 0 15px 50px rgba(0,0,0,0.5);
             position: relative;
             border-left: 8px solid #3498db;
-            animation: slideIn 0.4s ease; /* Hiệu ứng trượt vào */
+            animation: slideIn 0.4s ease; 
         }
 
         @keyframes slideIn {
@@ -147,7 +147,7 @@
         .popup-content ul { padding-left: 20px; color: #555; }
         .popup-content li { margin-bottom: 10px; }
 
-        /* --- Responsive cho màn hình nhỏ --- */
+        
         @media (max-width: 768px) {
             .parallax-section h1 { font-size: 2.2rem; }
             .parallax-section h2 { font-size: 1.8rem; }
@@ -318,7 +318,7 @@
         }
 
         function closePopupOnOutside(event) {
-            // Nếu người dùng bấm vào vùng nền mờ bên ngoài popup thì đóng lại
+            
             if (event.target.id === 'popup-overlay') {
                 document.getElementById('popup-overlay').style.display = 'none';
                 document.querySelectorAll('.popup-content').forEach(p => p.style.display = 'none');
