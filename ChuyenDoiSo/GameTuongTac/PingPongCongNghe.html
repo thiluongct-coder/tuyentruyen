@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minigame: Điều Phối Dữ Liệu - Nghị Quyết 57</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: none; }
+        body { background: #0f172a; color: #fff; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+        .game-container { width: 100%; max-width: 400px; background: #1e293b; padding: 15px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; text-align: center; position: relative; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        h1 { font-size: 0.85rem; color: #38bdf8; text-transform: uppercase; }
+        .pause-btn { background: #334155; color: #fff; border: 1px solid #475569; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .score-bar { font-size: 0.85rem; margin-bottom: 10px; display: flex; justify-content: space-around; }
+        canvas { display: block; background: #020617; margin: 0 auto; border-radius: 8px; border: 2px solid #1e293b; }
+        
+        .overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.97); display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; z-index: 10; padding: 20px; }
+        .story-box { text-align: left; background: #1e293b; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 0.8rem; border-left: 4px solid #38bdf8; max-width: 320px; }
+        .action-btn { margin-top: 10px; padding: 10px 25px; font-weight: bold; color: #fff; background: #0284c7; border: none; border-radius: 30px; cursor: pointer; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="top-header">
+        <h1>Trung Tâm Dữ Liệu Số</h1>
+        <button class="pause-btn" id="pause-btn" onclick="togglePause()" style="display: none;">⏸️</button>
+    </div>
+    
+    <div class="score-bar">
+        <span>Vận hành (Bạn): <strong id="player-score" style="color: #22c55e;">0</strong> / 5</span>
+        <span>Hệ thống (AI): <strong id="ai-score" style="color: #ef4444;">0</strong> / 5</span>
+    </div>
+
+    <div style="position: relative;">
+        <canvas id="gameCanvas" width="360" height="300"></canvas>
+        <div class="overlay" id="screen-overlay">
+            <h2 id="overlay-title">ĐIỀU PHỐI DỮ LIỆU SỐ</h2>
+            <div class="story-box" id="story-desc-box">
+                <p><strong>Nhiệm vụ:</strong> Thực hiện Nghị quyết 57-NQ/TW, bạn là người điều phối "Luồng dữ liệu quốc gia".</p>
+                <p style="margin-top: 5px;"><strong>Cách chơi:</strong> Di chuyển vợt để giữ dữ liệu. Ai đạt 5 điểm trước sẽ chiến thắng chiến dịch!</p>
+            </div>
+            <button class="action-btn" id="start-main-btn" onclick="startGame()">Bắt đầu điều phối</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let pScore = 0, aScore = 0, isPlaying = false, isPaused = false;
+    let ball = { x: 180, y: 150, r: 7, vx: 0.22, vy: 0.12 };
+    let pY = 120, aY = 120, pHeight = 70, lastTime = 0;
+
+    function startGame() {
+        if (isPaused) { 
+            isPaused = false; 
+            document.getElementById('screen-overlay').style.display = 'none';
+            lastTime = performance.now(); 
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        pScore = 0; 
+        aScore = 0; 
+        document.getElementById('player-score').innerText = pScore;
+        document.getElementById('ai-score').innerText = aScore;
+        resetBall();
+        
+        isPlaying = true; 
+        isPaused = false;
+        document.getElementById('screen-overlay').style.display = 'none';
+        document.getElementById('pause-btn').style.display = 'block';
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        if(isPaused) {
+            document.getElementById('overlay-title').innerText = "TẠM DỪNG";
+            document.getElementById('story-desc-box').style.display = 'none';
+            document.getElementById('start-main-btn').innerText = "Tiếp tục";
+            document.getElementById('screen-overlay').style.display = 'flex';
+        } else {
+            document.getElementById('story-desc-box').style.display = 'block';
+            document.getElementById('screen-overlay').style.display = 'none';
+            lastTime = performance.now();
+            requestAnimationFrame(loop);
+        }
+    }
+
+    function resetBall() {
+        ball.x = 180; ball.y = 150;
+        ball.vx = (Math.random() > 0.5 ? 1 : -1) * 0.22;
+        ball.vy = (Math.random() - 0.5) * 0.22;
+    }
+
+    function loop(now) {
+        if (!isPlaying || isPaused) return;
+        let dt = now - lastTime;
+        if (dt > 50) dt = 16;
+        lastTime = now;
+
+        // Logic bóng
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+        
+        // Va chạm tường trên/dưới
+        if (ball.y < 7) { ball.y = 7; ball.vy *= -1; }
+        if (ball.y > 293) { ball.y = 293; ball.vy *= -1; }
+
+        // Va chạm vợt (Người chơi - bên trái)
+        if (ball.x < 25 && ball.x > 15 && ball.y > pY && ball.y < pY + pHeight) {
+            ball.vx = Math.abs(ball.vx) + 0.015; 
+            ball.vy += (ball.y - (pY + 35)) * 0.003;
+            ball.x = 25; // Chống dính vợt
+        }
+
+        // Va chạm vợt (AI - bên phải, đã làm chậm tốc độ bám để người chơi dễ thắng hơn)
+        if (ball.x > 335 && ball.x < 345 && ball.y > aY && ball.y < aY + pHeight) {
+            ball.vx = -Math.abs(ball.vx) - 0.015;
+            ball.x = 335;
+        }
+
+        // AI di chuyển có độ trễ / chậm hơn để tạo cơ hội cho người chơi
+        let aiTarget = ball.y - 35;
+        aY += (aiTarget - aY) * 0.06; 
+        if (aY < 0) aY = 0;
+        if (aY > 230) aY = 230;
+
+        // Tính điểm
+        if (ball.x < 0) { 
+            aScore++; 
+            document.getElementById('ai-score').innerText = aScore;
+            checkEndGame();
+        }
+        if (ball.x > 360) { 
+            pScore++; 
+            document.getElementById('player-score').innerText = pScore;
+            checkEndGame();
+        }
+
+        // Vẽ khung cảnh
+        ctx.fillStyle = '#020617'; ctx.fillRect(0,0,360,300);
+        
+        // Vạch giữa sân đứt nét
+        ctx.strokeStyle = '#1e293b'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(180, 0); ctx.lineTo(180, 300); ctx.stroke(); ctx.setLineDash([]);
+
+        // Vẽ vợt và bóng
+        ctx.fillStyle = '#38bdf8'; ctx.fillRect(10, pY, 10, pHeight);
+        ctx.fillStyle = '#f43f5e'; ctx.fillRect(340, aY, 10, pHeight);
+        ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(ball.x, ball.y, 7, 0, Math.PI*2); ctx.fill();
+
+        if (isPlaying) requestAnimationFrame(loop);
+    }
+
+    function checkEndGame() {
+        if (pScore >= 5 || aScore >= 5) {
+            isPlaying = false;
+            document.getElementById('pause-btn').style.display = 'none';
+            document.getElementById('story-desc-box').style.display = 'block';
+            
+            if (pScore >= 5) {
+                document.getElementById('overlay-title').innerText = "🎉 CHIẾN DỊCH THÀNH CÔNG!";
+                document.getElementById('story-desc-box').innerHTML = `<p><strong>Xuất sắc!</strong> Bạn đã điều phối dòng dữ liệu thông suốt, hoàn thành xuất sắc mục tiêu chuyển đổi số theo tinh thần Nghị quyết 57.</p>`;
+            } else {
+                document.getElementById('overlay-title').innerText = "⚡ HỆ THỐNG QUÁ TẢI!";
+                document.getElementById('story-desc-box').innerHTML = `<p><strong>Thử thách thất bại:</strong> Hệ thống dữ liệu chưa được tối ưu. Hãy tiếp tục rèn luyện phản xạ để vận hành tốt hơn!</p>`;
+            }
+            
+            document.getElementById('start-main-btn').innerText = "Chơi Lại";
+            document.getElementById('screen-overlay').style.display = 'flex';
+        } else {
+            resetBall();
+        }
+    }
+
+    canvas.addEventListener('touchmove', (e) => { 
+        pY = e.touches[0].clientY - canvas.getBoundingClientRect().top - 35; 
+        if(pY < 0) pY = 0; if(pY > 230) pY = 230;
+        e.preventDefault(); 
+    }, {passive: false});
+    
+    canvas.addEventListener('mousemove', (e) => { 
+        pY = e.clientY - canvas.getBoundingClientRect().top - 35; 
+        if(pY < 0) pY = 0; if(pY > 230) pY = 230;
+    });
+</script>
+</body>
+</html>
