@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minigame: Lính Cứu Hỏa Cứu Thành Phố</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --panel-bg: #16213e;
+            --primary-color: #e94560;
+            --text-color: #fff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Header (Điểm & Máu) */
+        .header {
+            background-color: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .health-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #444;
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #00b4db, #0083b0);
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        /* Lưới trò chơi */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background-color: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background-color: #0f3460;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .cell:active {
+            background-color: #2a5298;
+        }
+
+        /* Hiệu ứng ngọn lửa */
+        .fire {
+            animation: burn 0.5s infinite alternate, popIn 0.3s ease-out;
+            text-shadow: 0 0 20px #ff4500;
+        }
+
+        .fire-level-3 { font-size: 3.5rem; }
+        .fire-level-2 { font-size: 2.5rem; opacity: 0.9; }
+        .fire-level-1 { font-size: 1.8rem; opacity: 0.8; }
+
+        /* Hiệu ứng xịt nước */
+        .water-splash {
+            animation: splash 0.3s ease-out forwards;
+            position: absolute;
+            font-size: 2rem;
+            pointer-events: none;
+        }
+
+        /* Màn hình kết thúc / Bắt đầu */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
+            display: none; /* Ẩn mặc định */
+        }
+
+        .overlay h1 {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .overlay p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ccc;
+            max-width: 400px;
+            line-height: 1.4;
+        }
+
+        /* Tab ẩn hiện hướng dẫn cốt truyện */
+        .story-toggle-btn {
+            background: none;
+            border: none;
+            color: #00b4db;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-bottom: 12px;
+        }
+
+        .story-box {
+            background: rgba(22, 33, 62, 0.9);
+            border: 1px solid rgba(0, 180, 219, 0.3);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.88rem;
+            color: #e2e8f0;
+            line-height: 1.45;
+            max-width: 420px;
+            display: none;
+        }
+
+        .story-box.show {
+            display: block;
+        }
+
+        .story-box h3 {
+            color: #00b4db;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(233, 69, 96, 0.4);
+            transition: transform 0.1s, background-color 0.2s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #ff5277;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Keyframes Animations */
+        @keyframes burn {
+            0% { transform: scale(0.95) rotate(-2deg); }
+            100% { transform: scale(1.05) rotate(2deg); text-shadow: 0 0 30px #ff0000; }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes splash {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) scale(1.5); opacity: 0; }
+        }
+
+        @media (max-width: 400px) {
+            .cell { font-size: 2.5rem; }
+            .fire-level-3 { font-size: 2.8rem; }
+            .fire-level-2 { font-size: 2.2rem; }
+            .fire-level-1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <!-- Khu vực thông tin -->
+        <div class="header">
+            <div class="stats">
+                <span>Điểm: <span id="score">0</span></span>
+                <span>🔥 <span id="active-fires">0</span></span>
+            </div>
+            <div style="font-size: 0.9rem; margin-bottom: 5px; text-align: left;">Mức độ an toàn của thành phố:</div>
+            <div class="health-bar-container">
+                <div class="health-bar" id="health-bar"></div>
+            </div>
+        </div>
+
+        <!-- Lưới 4x4 (16 ô) -->
+        <div class="grid" id="grid">
+            <!-- JS sẽ tự động tạo các ô ở đây -->
+        </div>
+    </div>
+
+    <!-- Màn hình kết thúc trò chơi / Bắt đầu -->
+    <div class="overlay" id="game-over-screen">
+        <h1 id="end-title">SẴN SÀNG!</h1>
+        <p>Bấm nhiều lần vào lửa để dập.<br>Đừng để cháy lan và bảo vệ thành phố!</p>
+        
+        <!-- Tab ẩn hiện cốt truyện & hướng dẫn -->
+        <button class="story-toggle-btn" onclick="toggleStory()" id="toggle-btn">📖 Xem Nhiệm Vụ & Cốt Truyện Cứu Hỏa</button>
+        <div class="story-box" id="story-box">
+            <h3>Nhiệm Vụ Khẩn Cấp: Giữ Vững Thành Phố</h3>
+            <p><strong>Cốt truyện:</strong> Một đợt nắng nóng gay gắt kết hợp sự cố chập điện diện rộng đã bùng phát thành chuỗi hỏa hoạn nguy hiểm đe dọa các khu dân cư trong thành phố. Ngọn lửa đang lan rất nhanh!</p>
+            <p style="margin-top: 6px;"><strong>Hướng dẫn:</strong> Bạn là Đội trưởng Đội Cảnh sát PCCC Công an thành phố Cần Thơ. Hãy bấm liên tục vào các điểm đang bốc cháy để xịt nước dập tắt chúng trước khi lửa lan sang các ô bên cạnh và thiêu rụi toàn bộ thành phố (Đạt 500 điểm để chiến thắng)!</p>
+        </div>
+
+        <p style="font-size: 1.1rem; color: #aaa; margin-top: 5px;">Điểm của bạn: <span id="final-score">0</span></p>
+        <button id="restart-btn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+    </div>
+
+    <script>
+        // --- CẤU HÌNH TRÒ CHƠI ---
+        const GRID_SIZE = 16; // 4x4
+        const MAX_FIRE_HEALTH = 3; // Số lần bấm để tắt 1 đốm lửa
+        const SPREAD_TIME = 3; // Số giây lửa tồn tại sẽ cháy lan
+        
+        // --- BIẾN TRẠNG THÁI ---
+        let cells = [];
+        let fireHealth = new Array(GRID_SIZE).fill(0); // 0: không cháy, 1-3: độ lớn của lửa
+        let fireAge = new Array(GRID_SIZE).fill(0);    // Thời gian lửa đã cháy (để tính cháy lan)
+        
+        let score = 0;
+        let cityHealth = 100;
+        let gameInterval;
+        let isPlaying = false;
+        
+        // Lấy các element DOM
+        const gridElement = document.getElementById('grid');
+        const scoreElement = document.getElementById('score');
+        const healthBarElement = document.getElementById('health-bar');
+        const activeFiresElement = document.getElementById('active-fires');
+        const overlayElement = document.getElementById('game-over-screen');
+        const finalScoreElement = document.getElementById('final-score');
+        const endTitle = document.getElementById('end-title');
+
+        function toggleStory() {
+            const storyBox = document.getElementById('story-box');
+            const toggleBtn = document.getElementById('toggle-btn');
+            if (storyBox.classList.contains('show')) {
+                storyBox.classList.remove('show');
+                toggleBtn.innerText = "📖 Xem Nhiệm Vụ & Cốt Truyện Cứu Hỏa";
+            } else {
+                storyBox.classList.add('show');
+                toggleBtn.innerText = "📖 Đóng Hồ Sơ Cứu Hỏa";
+            }
+        }
+
+        // Khởi tạo lưới 4x4 lúc mới mở web
+        function initGrid() {
+            gridElement.innerHTML = '';
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                // Lắng nghe sự kiện bấm hoặc chạm trên điện thoại
+                cell.addEventListener('mousedown', () => handleHit(i, cell));
+                cell.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); // Ngăn hành vi cuộn/zoom màn hình
+                    handleHit(i, cell);
+                });
+                gridElement.appendChild(cell);
+                cells.push(cell);
+            }
+            overlayElement.style.display = 'flex'; // Hiện màn hình bắt đầu
+        }
+
+        // Bắt đầu trò chơi
+        function startGame() {
+            fireHealth.fill(0);
+            fireAge.fill(0);
+            score = 0;
+            cityHealth = 100;
+            isPlaying = true;
+            
+            endTitle.style.color = ''; 
+
+            updateUI();
+            renderGrid();
+            
+            overlayElement.style.display = 'none'; 
+            
+            spawnFire();
+
+            if(gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, 1000);
+        }
+
+        // Xử lý sự kiện khi người chơi bấm vào 1 ô
+        function handleHit(index, cellElement) {
+            if (!isPlaying || fireHealth[index] === 0) return;
+
+            fireHealth[index]--;
+            fireAge[index] = 0; 
+
+            showWaterSplash(cellElement);
+
+            if (fireHealth[index] === 0) {
+                score += 10;
+                cityHealth = Math.min(100, cityHealth + 2); 
+                
+                if (score >= 500) {
+                    gameWin();
+                    return; 
+                }
+            }
+
+            updateUI();
+            renderGrid();
+        }
+
+        // Tạo hiệu ứng xịt nước
+        function showWaterSplash(parentCell) {
+            const splash = document.createElement('div');
+            splash.innerText = '💦';
+            splash.classList.add('water-splash');
+            parentCell.appendChild(splash);
+            
+            setTimeout(() => {
+                if(parentCell.contains(splash)) parentCell.removeChild(splash);
+            }, 300);
+        }
+
+        // Vòng lặp game xử lý logic thời gian
+        function gameLoop() {
+            let activeFiresCount = 0;
+
+            for (let i = 0; i < GRID_SIZE; i++) {
+                if (fireHealth[i] > 0) {
+                    activeFiresCount++;
+                    fireAge[i]++; 
+                    
+                    cityHealth -= (fireHealth[i] * 0.5); 
+                    
+                    if (fireAge[i] >= SPREAD_TIME) {
+                        spreadFire(i);
+                        fireAge[i] = 0; 
+                    }
+                }
+            }
+
+            let spawnChance = 0.3 + (score / 1000); 
+            if (Math.random() < spawnChance && activeFiresCount < GRID_SIZE - 2) {
+                spawnFire();
+            }
+
+            updateUI();
+
+            if (cityHealth <= 0) {
+                gameOver();
+            }
+        }
+
+        // Xuất hiện lửa ở 1 vị trí ngẫu nhiên trống
+        function spawnFire() {
+            const emptyCells = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                if (fireHealth[i] === 0) emptyCells.push(i);
+            }
+            if (emptyCells.length > 0) {
+                const randomIdx = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                fireHealth[randomIdx] = MAX_FIRE_HEALTH; 
+                fireAge[randomIdx] = 0;
+                renderGrid();
+            }
+        }
+
+        // Cơ chế cháy lan sang các ô kế bên
+        function spreadFire(index) {
+            const neighbors = [];
+            const row = Math.floor(index / 4);
+            const col = index % 4;
+
+            if (row > 0) neighbors.push(index - 4); 
+            if (row < 3) neighbors.push(index + 4); 
+            if (col > 0) neighbors.push(index - 1); 
+            if (col < 3) neighbors.push(index + 1); 
+
+            const emptyNeighbors = neighbors.filter(i => fireHealth[i] === 0);
+            
+            if (emptyNeighbors.length > 0) {
+                const targetIdx = emptyNeighbors[Math.floor(Math.random() * emptyNeighbors.length)];
+                fireHealth[targetIdx] = MAX_FIRE_HEALTH; 
+                fireAge[targetIdx] = 0;
+                renderGrid();
+            }
+        }
+
+        // Cập nhật giao diện
+        function renderGrid() {
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const cell = cells[i];
+                const waterSplash = cell.querySelector('.water-splash');
+                cell.innerHTML = ''; 
+                if (waterSplash) cell.appendChild(waterSplash);
+
+                if (fireHealth[i] > 0) {
+                    const fireIcon = document.createElement('div');
+                    fireIcon.innerText = '🔥';
+                    fireIcon.className = `fire fire-level-${fireHealth[i]}`;
+                    cell.appendChild(fireIcon);
+                    cell.style.backgroundColor = 'rgba(233, 69, 96, 0.2)'; 
+                } else {
+                    cell.style.backgroundColor = '#0f3460'; 
+                }
+            }
+        }
+
+        // Cập nhật Điểm và Thanh máu
+        function updateUI() {
+            scoreElement.innerText = score;
+            
+            let active = fireHealth.filter(h => h > 0).length;
+            activeFiresElement.innerText = active;
+
+            healthBarElement.style.width = Math.max(0, cityHealth) + '%';
+            
+            if (cityHealth > 60) {
+                healthBarElement.style.background = 'linear-gradient(90deg, #00b4db, #0083b0)'; 
+            } else if (cityHealth > 30) {
+                healthBarElement.style.background = 'linear-gradient(90deg, #f2994a, #f2c94c)'; 
+            } else {
+                healthBarElement.style.background = 'linear-gradient(90deg, #eb3349, #f45c43)'; 
+            }
+        }
+
+        // Kết thúc trò chơi (Thua cuộc)
+        function gameOver() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            finalScoreElement.innerText = score;
+            endTitle.innerText = "THÀNH PHỐ BỊ THIÊU RỤI!";
+            overlayElement.style.display = 'flex';
+        }
+
+        // Kết thúc trò chơi (Chiến thắng)
+        function gameWin() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            finalScoreElement.innerText = score;
+            endTitle.innerText = "🎉 BẠN ĐÃ CỨU ĐƯỢC THÀNH PHỐ! 🎉";
+            endTitle.style.color = "#00ff88"; 
+            overlayElement.style.display = 'flex';
+        }
+
+        window.onload = initGrid;
+    </script>
+</body>
+</html>
